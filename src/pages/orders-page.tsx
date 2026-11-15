@@ -58,9 +58,9 @@ export function OrdersPage({ orders, setOrders }: Props) {
         </div>
       </header>
 
-      <div className="grid flex-1 lg:grid-cols-[minmax(360px,420px)_1fr]">
+      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(360px,420px)_minmax(0,1fr)]">
         {/* List */}
-        <section aria-label="Orders list" className={cn("flex-col border-r bg-muted/30", selected ? "hidden lg:flex" : "flex")}>
+        <section aria-label="Orders list" className={cn("min-w-0 flex-col border-r bg-muted/30", selected ? "hidden lg:flex" : "flex")}>
           <div className="sticky top-14 z-[5] flex flex-col gap-3 border-b bg-background p-4">
             <div className="relative">
               <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
@@ -72,7 +72,7 @@ export function OrdersPage({ orders, setOrders }: Props) {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <Tabs value={stage} onValueChange={(v) => { setStage(v as OrderStatus); setChecked(new Set()) }}>
+            <Tabs className="min-w-0" value={stage} onValueChange={(v) => { setStage(v as OrderStatus); setChecked(new Set()) }}>
               <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]">
                 <TabsList className="w-max">
                   {STAGES.map((s) => (
