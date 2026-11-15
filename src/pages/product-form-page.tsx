@@ -21,31 +21,51 @@ import { ChoiceCardGroup } from "@/components/app/choice-card-group"
 import { Money, MoneyInput, parseAmount } from "@/components/app/money"
 import { MobileSaveBar } from "@/components/app/save-bar"
 import { cn } from "@/lib/utils"
+import { slugify } from "@/lib/bd"
+import { uid, useApp } from "@/store/store"
+import type { Product } from "@/store/types"
 
 const SIZE_PRESETS = ["S", "M", "L", "XL", "XXL", "Free size"]
 type Photo = { id: string; url: string; name: string }
+
+function shrink(file: File, max = 800): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height))
+      const c = document.createElement("canvas")
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k)
+      c.getContext("2d")?.drawImage(img, 0, 0, c.width, c.height)
+      resolve(c.toDataURL("image/jpeg", 0.8))
+    }
+    img.onerror = () => resolve(URL.createObjectURL(file))
+    img.src = URL.createObjectURL(file)
+  })
+}
 type Status = "draft" | "active"
 
-export function ProductFormPage() {
-  const [photos, setPhotos] = useState<Photo[]>([])
-  const [title, setTitle] = useState("")
-  const [desc, setDesc] = useState("")
-  const [price, setPrice] = useState("")
-  const [compare, setCompare] = useState("")
-  const [stock, setStock] = useState("")
-  const [hasVariants, setHasVariants] = useState(false)
-  const [sizes, setSizes] = useState<string[]>([])
-  const [colours, setColours] = useState<string[]>([])
+export function ProductFormPage({ id }: { id?: string }) {
+  const { state, set } = useApp()
+  const existing = id ? state.products.find((p) => p.id === id) : undefined
+  const [photos, setPhotos] = useState<Photo[]>(() => (existing?.photos ?? []).map((url, i) => ({ id: String(i), url, name: `${existing?.title} photo ${i + 1}` })))
+  const [title, setTitle] = useState(existing?.title ?? "")
+  const [desc, setDesc] = useState(existing?.description ?? "")
+  const [price, setPrice] = useState(existing ? String(existing.price) : "")
+  const [compare, setCompare] = useState(existing?.compareAt ? String(existing.compareAt) : "")
+  const [stock, setStock] = useState(existing && !existing.variants.length ? String(existing.stock) : "")
+  const [hasVariants, setHasVariants] = useState(!!existing?.variants.length)
+  const [sizes, setSizes] = useState<string[]>(existing?.sizes ?? [])
+  const [colours, setColours] = useState<string[]>(existing?.colours ?? [])
   const [colourDraft, setColourDraft] = useState("")
-  const [variantStock, setVariantStock] = useState<Record<string, string>>({})
-  const [variantPrice, setVariantPrice] = useState<Record<string, string>>({})
+  const [variantStock, setVariantStock] = useState<Record<string, string>>(() => Object.fromEntries((existing?.variants ?? []).map((v) => [v.key, String(v.stock)])))
+  const [variantPrice, setVariantPrice] = useState<Record<string, string>>(() => Object.fromEntries((existing?.variants ?? []).filter((v) => v.price).map((v) => [v.key, String(v.price)])))
   const [bulkStock, setBulkStock] = useState("")
-  const [status, setStatus] = useState<Status>("draft")
-  const [collections, setCollections] = useState(["Eid collection", "New arrivals", "Panjabi", "Three-piece"])
-  const [picked, setPicked] = useState<string[]>([])
+  const [status, setStatus] = useState<Status>(existing?.status === "active" ? "active" : "draft")
+  const collections = state.collections
+  const [picked, setPicked] = useState<string[]>(existing?.collectionIds ?? [])
   const [newCollection, setNewCollection] = useState("")
-  const [weight, setWeight] = useState("500")
-  const [slugEdit, setSlugEdit] = useState<string | null>(null)
+  const [weight, setWeight] = useState(String(existing?.weight ?? 500))
+  const [slugEdit, setSlugEdit] = useState<string | null>(existing ? existing.slug : null)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [submitted, setSubmitted] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -73,15 +93,12 @@ export function ProductFormPage() {
   }
   const discount = priceN && compareN && !errors.compare ? Math.round((1 - priceN / compareN) * 100) : null
 
-  const autoSlug = useMemo(() => {
-    const latin = title.toLowerCase().normalize("NFKD").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-")
-    return latin || (title.trim() ? `product-${slugSeed.current}` : "")
-  }, [title])
+  const autoSlug = useMemo(() => slugify(title, slugSeed.current), [title])
 
   const variants = useMemo(() => {
     const s = sizes.length ? sizes : [undefined]
     const c = colours.length ? colours : [undefined]
-    return s.flatMap((size) => c.map((colour) => ({ key: `${size ?? ""}|${colour ?? ""}`, label: [size, colour].filter(Boolean).join(" / ") }))).filter((v) => v.label)
+    return s.flatMap((size) => c.map((colour) => { const label = [size, colour].filter(Boolean).join(" / "); return { key: label, label } })).filter((v) => v.label)
   }, [sizes, colours])
   const totalStock = hasVariants ? variants.reduce((s, v) => s + (parseAmount(variantStock[v.key] ?? "") || 0), 0) : stockN || 0
 
@@ -93,9 +110,10 @@ export function ProductFormPage() {
   ]
   const ready = checklist.every((c) => c.done)
 
-  const addFiles = (files: FileList | null) => {
+  // Photos are shrunk to 800px JPEG so the prototype can keep them in browser storage.
+  const addFiles = async (files: FileList | null) => {
     if (!files) return
-    const next = Array.from(files).filter((f) => f.type.startsWith("image/")).map((f) => ({ id: crypto.randomUUID(), url: URL.createObjectURL(f), name: f.name }))
+    const next = await Promise.all(Array.from(files).filter((f) => f.type.startsWith("image/")).map(async (f) => ({ id: uid(), url: await shrink(f), name: f.name })))
     setPhotos((p) => [...p, ...next].slice(0, 8)); setDirty(true)
   }
   const addColour = () => {
@@ -107,10 +125,38 @@ export function ProductFormPage() {
     setSubmitted(true)
     if (errors.title || errors.price || errors.compare || errors.stock) { toast.error("Fix the highlighted fields to save."); return }
     if (status === "active" && !ready) { toast.error("Finish the checklist to go live, or save as Draft."); return }
+    const saved: Product = {
+      id: existing?.id ?? uid(),
+      title: title.trim(),
+      slug: slugEdit ?? autoSlug,
+      description: desc,
+      photos: photos.map((p) => p.url),
+      tint: existing?.tint ?? "oklch(0.92 0.03 60)",
+      price: priceN as number,
+      compareAt: compareN && !Number.isNaN(compareN) ? compareN : undefined,
+      status,
+      sizes: hasVariants ? sizes : [],
+      colours: hasVariants ? colours : [],
+      variants: hasVariants ? variants.map((v) => ({ key: v.key, label: v.label, stock: parseAmount(variantStock[v.key] ?? "") || 0, price: parseAmount(variantPrice[v.key] ?? "") || undefined })) : [],
+      stock: hasVariants ? 0 : (stockN as number) || 0,
+      weight: Number(weight) || 0,
+      collectionIds: picked,
+      sold: existing?.sold ?? 0,
+    }
+    set((s) => ({ ...s, products: existing ? s.products.map((p) => (p.id === saved.id ? saved : p)) : [saved, ...s.products] }))
     setDirty(false)
     toast.success(status === "active" ? "Product saved and live in your store" : "Product saved as draft")
+    window.location.hash = "products"
+  }
+  const archive = () => {
+    if (!existing) return
+    const next = existing.status === "archived" ? "draft" : "archived"
+    set((s) => ({ ...s, products: s.products.map((p) => (p.id === existing.id ? { ...p, status: next } : p)) }))
+    toast(next === "archived" ? "Product archived. It is hidden from your store." : "Product restored as draft")
+    window.location.hash = "products"
   }
   const reset = () => {
+    if (existing) { setDirty(false); window.location.hash = "products"; return }
     setPhotos([]); setTitle(""); setDesc(""); setPrice(""); setCompare(""); setStock(""); setHasVariants(false); setSizes([]); setColours([])
     setVariantStock({}); setVariantPrice({}); setPicked([]); setTouched({}); setSubmitted(false); setDirty(false); setSlugEdit(null); setStatus("draft")
   }
@@ -118,13 +164,14 @@ export function ProductFormPage() {
   return (
     <Page className="pb-24 md:pb-8">
       <PageHeader
-        backHref="#orders"
+        backHref="#products"
         backLabel="Back to products"
-        title={title.trim() || "Add product"}
-        badge={<Badge variant={status === "active" ? "success" : "muted"}>{status === "active" ? "Active" : "Draft"}</Badge>}
+        title={title.trim() || (existing ? "Untitled product" : "Add product")}
+        badge={existing?.status === "archived" ? <Badge variant="outline">Archived</Badge> : <Badge variant={status === "active" ? "success" : "muted"}>{status === "active" ? "Active" : "Draft"}</Badge>}
         actions={
           <div className="hidden items-center gap-2 md:flex">
             {dirty && <span className="text-sm text-muted-foreground">Unsaved changes</span>}
+            {existing && <Button variant="ghost" onClick={archive}>{existing.status === "archived" ? "Restore" : "Archive"}</Button>}
             <Button variant="outline" disabled={!dirty} onClick={() => setConfirmDiscard(true)}>Discard</Button>
             <Button onClick={save}>Save</Button>
           </div>
@@ -341,10 +388,11 @@ export function ProductFormPage() {
                 <FieldSet>
                   <FieldLegend className="sr-only">Collections</FieldLegend>
                   <div className="flex flex-col gap-2">
+                    {collections.length === 0 && <p className="text-sm text-muted-foreground">No collections yet. Create one below.</p>}
                     {collections.map((c) => (
-                      <Field key={c} orientation="horizontal">
-                        <Checkbox id={`col-${c}`} checked={picked.includes(c)} onCheckedChange={(v) => { setPicked(v ? [...picked, c] : picked.filter((x) => x !== c)); setDirty(true) }} />
-                        <FieldLabel htmlFor={`col-${c}`} className="font-normal">{c}</FieldLabel>
+                      <Field key={c.id} orientation="horizontal">
+                        <Checkbox id={`col-${c.id}`} checked={picked.includes(c.id)} onCheckedChange={(v) => { setPicked(v ? [...picked, c.id] : picked.filter((x) => x !== c.id)); setDirty(true) }} />
+                        <FieldLabel htmlFor={`col-${c.id}`} className="font-normal">{c.title}</FieldLabel>
                       </Field>
                     ))}
                   </div>
@@ -352,7 +400,11 @@ export function ProductFormPage() {
                 <form className="flex gap-2" onSubmit={(e) => {
                   e.preventDefault()
                   const v = newCollection.trim()
-                  if (v && !collections.includes(v)) { setCollections([...collections, v]); setPicked([...picked, v]); setDirty(true) }
+                  if (v && !collections.some((c) => c.title.toLowerCase() === v.toLowerCase())) {
+                    const cid = uid()
+                    set((s) => ({ ...s, collections: [...s.collections, { id: cid, title: v, description: "", visible: true }] }))
+                    setPicked([...picked, cid]); setDirty(true)
+                  }
                   setNewCollection("")
                 }}>
                   <Input aria-label="New collection name" placeholder="New collection" value={newCollection} onChange={(e) => setNewCollection(e.target.value)} />
@@ -369,8 +421,8 @@ export function ProductFormPage() {
       <AlertDialog open={confirmDiscard} onOpenChange={setConfirmDiscard}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Discard this product?</AlertDialogTitle>
-            <AlertDialogDescription>Your photos and details are not saved. Save as Draft to keep them.</AlertDialogDescription>
+            <AlertDialogTitle>{existing ? "Discard your changes?" : "Discard this product?"}</AlertDialogTitle>
+            <AlertDialogDescription>{existing ? "The product stays as it was last saved." : "Your photos and details are not saved. Save as Draft to keep them."}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Keep editing</AlertDialogCancel>

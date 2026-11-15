@@ -73,7 +73,7 @@ function OrderSummary({ fee, zone, total }: { fee: number; zone: string; total: 
   )
 }
 
-export function CheckoutPage() {
+export function CheckoutPage() { // TODO(checkout agent): wire to store
   const [phone, setPhone] = useState("")
   const [touched, setTouched] = useState(false)
   const [tried, setTried] = useState(false)

@@ -13,11 +13,12 @@ import { Page, PageHeader } from "@/components/app/page"
 import { PaymentBadge, RiskBadge, orderStatusLabel } from "@/components/app/status-badge"
 import { Money } from "@/components/app/money"
 import { BookCourierDialog } from "@/components/app/order-dialogs"
-import { type Courier, type Order, type OrderStatus, STAGES, total } from "@/data/orders"
+import { type OrderStatus, STAGES, total } from "@/data/orders"
+import { timeAgo, useOrderActions, useOrders } from "@/store/store"
 
-type Props = { orders: Order[]; onBook: (ids: number[], courier: Courier) => void }
-
-export function OrdersListPage({ orders, onBook }: Props) {
+export function OrdersListPage() {
+  const orders = useOrders()
+  const { book: onBook } = useOrderActions()
   const [stage, setStage] = useState<OrderStatus>("confirm")
   const [query, setQuery] = useState("")
   const [checked, setChecked] = useState<Set<number>>(new Set())
@@ -102,7 +103,7 @@ export function OrdersListPage({ orders, onBook }: Props) {
                       </TableCell>
                       <TableCell>
                         <a href={`#order-${o.id}`} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>#{o.id}</a>
-                        <div className="text-xs text-muted-foreground">{o.age}</div>
+                        <div className="text-xs text-muted-foreground">{timeAgo(o.createdAt)}</div>
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{o.name}</div>
@@ -139,7 +140,7 @@ export function OrdersListPage({ orders, onBook }: Props) {
                       <div className="flex flex-wrap gap-x-4 text-sm text-muted-foreground">
                         <span className="tabular-nums">{o.phone}</span>
                         <span>{o.district}</span>
-                        <span>{o.age}</span>
+                        <span>{timeAgo(o.createdAt)}</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
                         <PaymentBadge order={o} />

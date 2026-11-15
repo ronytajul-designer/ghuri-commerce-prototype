@@ -16,19 +16,12 @@ import { Money } from "@/components/app/money"
 import { OrderProgress } from "@/components/app/order-progress"
 import { OrderStatusBadge, PaymentBadge } from "@/components/app/status-badge"
 import { BookCourierDialog, CancelOrderDialog } from "@/components/app/order-dialogs"
-import { type Courier, type Order, codDue, isValidBdPhone, riskOf, subtotal, total } from "@/data/orders"
+import { codDue, isValidBdPhone, riskOf, subtotal, total } from "@/data/orders"
+import { timeAgo, useOrderActions, useOrders } from "@/store/store"
 
-export type OrderActions = {
-  confirm: (id: number) => void
-  noAnswer: (id: number) => void
-  cancel: (id: number, reason: string) => void
-  book: (ids: number[], courier: Courier) => void
-  delivered: (id: number) => void
-  returned: (id: number) => void
-  note: (id: number, text: string) => void
-}
-
-export function OrderDetailPage({ order: o, actions }: { order: Order | undefined; actions: OrderActions }) {
+export function OrderDetailPage({ id }: { id: number }) {
+  const o = useOrders().find((x) => x.id === id)
+  const actions = useOrderActions()
   const [dialog, setDialog] = useState<null | "cancel" | "book">(null)
   const [note, setNote] = useState("")
 
@@ -50,7 +43,7 @@ export function OrderDetailPage({ order: o, actions }: { order: Order | undefine
         backLabel="Back to orders"
         title={`#${o.id}`}
         badge={<><OrderStatusBadge status={o.status} /><PaymentBadge order={o} /></>}
-        description={`${o.age} · ${o.name}`}
+        description={`${timeAgo(o.createdAt)} · ${o.name}`}
         actions={
           <>
             <Button variant="outline" onClick={() => toast("Invoice ready to print (prototype)")}><PrinterIcon />Print invoice</Button>
@@ -122,8 +115,8 @@ export function OrderDetailPage({ order: o, actions }: { order: Order | undefine
                   <TableRow><TableHead>Product</TableHead><TableHead className="text-right">Qty</TableHead><TableHead className="text-right">Amount</TableHead></TableRow>
                 </TableHeader>
                 <TableBody>
-                  {o.items.map((i) => (
-                    <TableRow key={i.title}><TableCell className="whitespace-normal">{i.title}</TableCell><TableCell className="text-right tabular-nums">{i.qty}</TableCell><TableCell className="text-right"><Money value={i.qty * i.price} /></TableCell></TableRow>
+                  {o.items.map((i, n) => (
+                    <TableRow key={n}><TableCell className="whitespace-normal">{i.title}{i.variant && <div className="text-xs text-muted-foreground">{i.variant}</div>}</TableCell><TableCell className="text-right tabular-nums">{i.qty}</TableCell><TableCell className="text-right"><Money value={i.qty * i.price} /></TableCell></TableRow>
                   ))}
                 </TableBody>
                 <TableFooter>
@@ -143,7 +136,7 @@ export function OrderDetailPage({ order: o, actions }: { order: Order | undefine
                 {o.log.map((l, i) => (
                   <li key={i} className="grid grid-cols-[8px_minmax(0,1fr)] gap-4 text-sm">
                     <span className="mt-2 size-2 rounded-full bg-muted-foreground/50" aria-hidden="true" />
-                    <div className="flex flex-col"><span>{l.text}</span><span className="text-xs text-muted-foreground">{l.when}</span></div>
+                    <div className="flex flex-col"><span>{l.text}</span><span className="text-xs text-muted-foreground">{timeAgo(l.at)}</span></div>
                   </li>
                 ))}
               </ol>
@@ -196,6 +189,7 @@ export function OrderDetailPage({ order: o, actions }: { order: Order | undefine
             <CardContent>
               <DescriptionList items={[
                 { term: "Method", detail: o.pay },
+                ...(o.advancePaid ? [{ term: "Paid in advance", detail: <Money value={o.advancePaid} /> }] : []),
                 { term: o.pay === "COD" ? "To collect" : "Paid", detail: <Money value={o.pay === "COD" ? codDue(o) : total(o)} className="font-medium" /> },
               ]} />
             </CardContent>

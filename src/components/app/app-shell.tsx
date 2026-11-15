@@ -8,21 +8,29 @@ import {
   SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { ModeToggle } from "@/components/mode-toggle"
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { DatabaseIcon, LogOutIcon, SparkleIcon, UserIcon } from "lucide-react"
+import { toast } from "sonner"
+import { useApp } from "@/store/store"
 
 export type NavKey = "home" | "products" | "collections" | "orders" | "customers" | "theme" | "settings"
 
 const NAV: { key: NavKey; title: string; icon: React.ComponentType; href: string }[] = [
   { key: "home", title: "Home", icon: HomeIcon, href: "#home" },
-  { key: "products", title: "Products", icon: PackageIcon, href: "#product-new" },
-  { key: "collections", title: "Collections", icon: FolderTreeIcon, href: "#orders" },
+  { key: "products", title: "Products", icon: PackageIcon, href: "#products" },
+  { key: "collections", title: "Collections", icon: FolderTreeIcon, href: "#collections" },
   { key: "orders", title: "Orders", icon: ShoppingCartIcon, href: "#orders" },
-  { key: "customers", title: "Customers", icon: UsersIcon, href: "#orders" },
-  { key: "theme", title: "Theme", icon: PaletteIcon, href: "#orders" },
-  { key: "settings", title: "Settings", icon: SettingsIcon, href: "#orders" },
+  { key: "customers", title: "Customers", icon: UsersIcon, href: "#customers" },
+  { key: "theme", title: "Theme", icon: PaletteIcon, href: "#theme" },
+  { key: "settings", title: "Settings", icon: SettingsIcon, href: "#settings-general" },
 ]
 
 /** Admin frame matching the live product: sidebar, top bar with View store + theme, scrolling content. */
 export function AppShell({ active, badges, children }: { active: NavKey; badges?: Partial<Record<NavKey, number>>; children: React.ReactNode }) {
+  const { state, reset } = useApp()
+  const initial = (state.store.name || "G")[0].toUpperCase()
   return (
     <SidebarProvider>
       <Sidebar>
@@ -30,9 +38,9 @@ export function AppShell({ active, badges, children }: { active: NavKey; badges?
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg">
-                <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">G</div>
+                <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">{initial}</div>
                 <div className="grid flex-1 text-left leading-tight">
-                  <span className="truncate font-medium">Tajul 1</span>
+                  <span className="truncate font-medium">{state.store.name}</span>
                   <span className="truncate text-xs text-muted-foreground">Owner</span>
                 </div>
                 <ChevronsUpDownIcon className="ml-auto" />
@@ -59,17 +67,30 @@ export function AppShell({ active, badges, children }: { active: NavKey; badges?
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild><a href="#checkout"><ExternalLinkIcon /><span>View store</span></a></SidebarMenuButton>
+              <SidebarMenuButton asChild><a href="#store"><ExternalLinkIcon /><span>View store</span></a></SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg">
-                <Avatar className="size-8 rounded-md"><AvatarFallback className="rounded-md">T</AvatarFallback></Avatar>
-                <div className="grid flex-1 text-left leading-tight">
-                  <span className="truncate font-medium">Tajul</span>
-                  <span className="truncate text-xs text-muted-foreground">Prototype, sample data</span>
-                </div>
-                <ChevronsUpDownIcon className="ml-auto" />
-              </SidebarMenuButton>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton size="lg">
+                    <Avatar className="size-8 rounded-md"><AvatarFallback className="rounded-md">{(state.account?.name || "U")[0]}</AvatarFallback></Avatar>
+                    <div className="grid flex-1 text-left leading-tight">
+                      <span className="truncate font-medium">{state.account?.name || "You"}</span>
+                      <span className="truncate text-xs text-muted-foreground">{state.account?.phone || state.account?.email}</span>
+                    </div>
+                    <ChevronsUpDownIcon className="ml-auto" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="top" align="start" className="w-60">
+                  <DropdownMenuItem asChild><a href="#settings-account"><UserIcon />Account</a></DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Prototype data</DropdownMenuLabel>
+                  <DropdownMenuItem onSelect={() => { reset("sample"); window.location.hash = "home"; toast("Sample store loaded") }}><DatabaseIcon />Load sample store</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => { reset("empty"); window.location.hash = "home"; toast("Started a new, empty store") }}><SparkleIcon />Start a new store</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild><a href="#login"><LogOutIcon />Log out</a></DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
@@ -78,7 +99,7 @@ export function AppShell({ active, badges, children }: { active: NavKey; badges?
         <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger />
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild><a href="#checkout"><ExternalLinkIcon />View store</a></Button>
+            <Button variant="ghost" size="sm" asChild><a href="#store"><ExternalLinkIcon />View store</a></Button>
             <ModeToggle />
           </div>
         </header>
