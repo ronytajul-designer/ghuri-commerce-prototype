@@ -31,7 +31,7 @@ export function AppSidebar({ toConfirm }: { toConfirm: number }) {
               {items.map((it) => (
                 <SidebarMenuItem key={it.title}>
                   <SidebarMenuButton isActive={it.active} asChild>
-                    <a href="#/orders" aria-current={it.active ? "page" : undefined}>
+                    <a href="#orders" aria-current={it.active ? "page" : undefined}>
                       <it.icon />
                       <span>{it.title}</span>
                     </a>
@@ -47,7 +47,7 @@ export function AppSidebar({ toConfirm }: { toConfirm: number }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a href="#/checkout"><ExternalLinkIcon /><span>View store checkout</span></a>
+              <a href="#checkout"><ExternalLinkIcon /><span>View store checkout</span></a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

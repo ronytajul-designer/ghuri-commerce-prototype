@@ -8,9 +8,9 @@ import { CheckoutPage } from "@/pages/checkout-page"
 import { OrdersPage } from "@/pages/orders-page"
 
 function useHashRoute() {
-  const [route, setRoute] = useState(() => window.location.hash.replace("#", "") || "/orders")
+  const [route, setRoute] = useState(() => window.location.hash.replace("#", "") || "orders")
   useEffect(() => {
-    const on = () => setRoute(window.location.hash.replace("#", "") || "/orders")
+    const on = () => setRoute(window.location.hash.replace("#", "") || "orders")
     window.addEventListener("hashchange", on)
     return () => window.removeEventListener("hashchange", on)
   }, [])
@@ -24,7 +24,7 @@ export default function App() {
 
   return (
     <TooltipProvider>
-      {route === "/checkout" ? (
+      {route === "checkout" ? (
         <CheckoutPage />
       ) : (
         <SidebarProvider>
