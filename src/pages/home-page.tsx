@@ -203,7 +203,7 @@ function ActiveHome() {
           <StatCard label="Orders" value={cur.count} delta={delta(cur.count, prev.count)} hint={deltaHint} icon={<ShoppingBagIcon />} />
           <StatCard
             label="Delivery success"
-            value={deliveryRate === null ? "–" : `${deliveryRate}%`}
+            value={deliveryRate === null ? "Not yet" : `${deliveryRate}%`}
             hint={deliveryRate === null ? "No deliveries yet" : `${cur.delivered} delivered, ${cur.returned} came back`}
             icon={<PackageCheckIcon />}
           />
