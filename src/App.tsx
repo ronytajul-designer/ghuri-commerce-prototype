@@ -7,6 +7,7 @@ import { ThemeProvider, useAppTheme } from "@/components/mode-toggle"
 import { SAMPLE_ORDERS, type Order } from "@/data/orders"
 import { CheckoutPage } from "@/pages/checkout-page"
 import { OrdersPage } from "@/pages/orders-page"
+import { ProductFormPage } from "@/pages/product-form-page"
 
 function useHashRoute() {
   const [route, setRoute] = useState(() => window.location.hash.replace("#", "") || "orders")
@@ -34,9 +35,9 @@ function Shell() {
         <CheckoutPage />
       ) : (
         <SidebarProvider>
-          <AppSidebar toConfirm={toConfirm} />
+          <AppSidebar toConfirm={toConfirm} route={route} />
           <SidebarInset>
-            <OrdersPage orders={orders} setOrders={(fn) => setOrders(fn)} />
+            {route === "product-new" ? <ProductFormPage /> : <OrdersPage orders={orders} setOrders={(fn) => setOrders(fn)} />}
           </SidebarInset>
         </SidebarProvider>
       )}

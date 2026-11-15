@@ -4,11 +4,11 @@ import {
   SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-export function AppSidebar({ toConfirm }: { toConfirm: number }) {
+export function AppSidebar({ toConfirm, route }: { toConfirm: number; route: string }) {
   const items = [
     { title: "Home", icon: HomeIcon },
-    { title: "Products", icon: PackageIcon },
-    { title: "Orders", icon: ShoppingBagIcon, active: true, badge: toConfirm },
+    { title: "Products", icon: PackageIcon, href: "#product-new", active: route === "product-new" },
+    { title: "Orders", icon: ShoppingBagIcon, href: "#orders", active: route !== "product-new", badge: toConfirm },
     { title: "Customers", icon: UsersIcon },
     { title: "Theme", icon: PaletteIcon },
     { title: "Settings", icon: SettingsIcon },
@@ -31,7 +31,7 @@ export function AppSidebar({ toConfirm }: { toConfirm: number }) {
               {items.map((it) => (
                 <SidebarMenuItem key={it.title}>
                   <SidebarMenuButton isActive={it.active} asChild>
-                    <a href="#orders" aria-current={it.active ? "page" : undefined}>
+                    <a href={"href" in it && it.href ? it.href : "#orders"} aria-current={it.active ? "page" : undefined}>
                       <it.icon />
                       <span>{it.title}</span>
                     </a>
