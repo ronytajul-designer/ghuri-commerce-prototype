@@ -112,7 +112,7 @@ export function StoreHomeContent({ state, theme, preview }: { state: AppState; t
       <section aria-label="Why order here" className="border-b">
         <ul className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-4 text-sm sm:grid-cols-3 md:px-8">
           <li className="flex items-center gap-2"><BanknoteIcon className="size-4 text-muted-foreground" aria-hidden="true" />Cash on delivery</li>
-          <li className="flex items-center gap-2"><TruckIcon className="size-4 text-muted-foreground" aria-hidden="true" />{state.zones.length ? <>Delivery from <Money value={minFee} />, all over Bangladesh</> : "Delivery all over Bangladesh"}</li>
+          <li className="flex items-center gap-2"><TruckIcon className="size-4 text-muted-foreground" aria-hidden="true" /><span>{state.zones.length ? <>Delivery from <Money value={minFee} />, all over Bangladesh</> : "Delivery all over Bangladesh"}</span></li>
           <li className="flex items-center gap-2"><RotateCcwIcon className="size-4 text-muted-foreground" aria-hidden="true" />{state.store.returnPolicy ? "Easy exchange" : "Ask about exchange"}</li>
         </ul>
       </section>

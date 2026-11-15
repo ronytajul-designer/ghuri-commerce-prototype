@@ -235,7 +235,7 @@ export function SignupPage() {
                         </button>
                       </p>
                     ) : v.handle && !errors.handle ? (
-                      <p className="flex items-center gap-1 font-medium text-success-foreground">
+                      <p className="flex items-center gap-2 font-medium text-success-foreground">
                         <CheckCircle2Icon className="size-4" aria-hidden="true" /> Available
                       </p>
                     ) : null}
