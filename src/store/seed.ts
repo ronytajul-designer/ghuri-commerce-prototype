@@ -78,9 +78,9 @@ function seedOrders(now: number): Order[] {
     order({ id: 994, name: "Rahima Akter", phone: "01711223344", district: "Dhaka", thana: "Mirpur", items: [i("p2", "Cotton three-piece", 1, 1450, "Peach")], status: "delivered", courier: "Pathao" }, 25 * DAY, now),
     order({ id: 998, name: "Rahima Akter", phone: "01711223344", district: "Dhaka", thana: "Mirpur", items: [i("p6", "Attar, 6 ml", 1, 350)], status: "delivered", courier: "Steadfast" }, 9 * DAY, now),
     order({ id: 991, name: "Sabbir Hossain", phone: "01819876543", district: "Chattogram", thana: "Panchlaish", items: [i("p1", "Cotton Panjabi", 1, 1200, "L / White")], status: "returned", courier: "RedX", log: [{ at: now - 30 * DAY, text: "Returned by RedX: customer refused" }] }, 32 * DAY, now),
-    order({ id: 995, name: "Sabbir Hossain", phone: "01819876543", district: "Chattogram", thana: "Panchlaish", items: [i("p5", "Polo shirt", 1, 890, "L")], status: "returned", courier: "RedX" }, 20 * DAY, now),
+    order({ id: 995, name: "Sabbir Hossain", phone: "01819876543", district: "Chattogram", thana: "Panchlaish", items: [i("p5", "Polo shirt", 1, 890, "L")], status: "returned", courier: "RedX", log: [{ at: now - 18 * DAY, text: "Returned by RedX: customer not reachable" }] }, 20 * DAY, now),
     order({ id: 997, name: "Sabbir Hossain", phone: "01819876543", district: "Chattogram", thana: "Panchlaish", items: [i("p6", "Attar, 6 ml", 2, 350)], status: "delivered", courier: "Steadfast" }, 12 * DAY, now),
-    order({ id: 999, name: "Sabbir Hossain", phone: "01819876543", district: "Chattogram", thana: "Panchlaish", items: [i("p3", "Hijab, jersey", 1, 250, "Navy")], status: "returned", courier: "RedX" }, 6 * DAY, now),
+    order({ id: 999, name: "Sabbir Hossain", phone: "01819876543", district: "Chattogram", thana: "Panchlaish", items: [i("p3", "Hijab, jersey", 1, 250, "Navy")], status: "returned", courier: "RedX", log: [{ at: now - 4 * DAY, text: "Returned by RedX: customer refused" }] }, 6 * DAY, now),
     order({ id: 992, name: "Tanvir Ahmed", phone: "01611002233", district: "Dhaka", thana: "Dhanmondi", items: [i("p5", "Polo shirt", 1, 890, "XL")], status: "delivered", courier: "Pathao" }, 28 * DAY, now),
     order({ id: 993, name: "Farzana Islam", phone: "01555667788", district: "Sylhet", thana: "Sylhet Sadar", items: [i("p2", "Cotton three-piece", 1, 1450, "Mint")], status: "delivered", courier: "Steadfast" }, 27 * DAY, now),
     order({ id: 996, name: "Sharmin Sultana", phone: "01912121212", district: "Dhaka", thana: "Gulshan", items: [i("p3", "Hijab, jersey", 3, 250, "Maroon")], status: "delivered", courier: "Pathao" }, 15 * DAY, now),
@@ -95,7 +95,32 @@ function seedOrders(now: number): Order[] {
     order({ id: 1006, name: "Sharmin Sultana", phone: "01912121212", district: "Dhaka", thana: "Gulshan", address: "Road 45, House 12, Gulshan 2", items: [i("p3", "Hijab, jersey", 3, 250, "Maroon")], status: "delivered", courier: "Pathao", consignment: "PT-99120" }, 2 * DAY, now),
     order({ id: 1005, name: "Arif Chowdhury", phone: "01313131313", district: "Chattogram", thana: "Kotwali", address: "Anderkilla, near Shahi Jame Masjid", items: [i("p1", "Cotton Panjabi", 1, 1200, "XL / Maroon")], status: "returned", courier: "RedX", consignment: "RX-55102", log: [{ at: now - 2 * DAY, text: "Returned by RedX: customer refused" }] }, 3 * DAY, now),
   ]
-  return [...recent, ...past]
+  return [...recent, ...past, ...fillerOrders(now)]
+}
+
+// Steady background orders over the last 60 days from one-time buyers, so trends and charts look realistic.
+function fillerOrders(now: number): Order[] {
+  const names = ["Ayesha Siddika", "Rakib Hasan", "Mithila Rahman", "Fahim Khan", "Jannatul Ferdous", "Imran Hossain", "Sadia Afrin", "Nayeem Islam", "Tasnim Ahmed", "Rifat Chowdhury", "Lamia Akter", "Shakil Mahmud"]
+  const districts = ["Dhaka", "Dhaka", "Dhaka", "Gazipur", "Narayanganj", "Chattogram", "Sylhet", "Rajshahi", "Khulna", "Cumilla"]
+  const items: [string, string, number, string?][] = [["p1", "Cotton Panjabi", 1200, "M / White"], ["p2", "Cotton three-piece", 1450, "Peach"], ["p3", "Hijab, jersey", 250, "Black"], ["p5", "Polo shirt", 890, "L"], ["p6", "Attar, 6 ml", 350], ["p4", "Kids kurti", 650, "8Y"]]
+  const out: Order[] = []
+  let id = 900
+  for (let day = 2; day <= 58; day++) {
+    const perDay = (day % 7 === 3 ? 2 : 1) + (day < 30 ? (day % 3 === 0 ? 1 : 0) : 0) - (day % 5 === 0 ? 1 : 0)
+    for (let k = 0; k < perDay; k++) {
+      const n = (day * 7 + k * 3) % names.length
+      const [pid, title, price, variant] = items[(day + k) % items.length]
+      const returned = (day + k) % 7 === 0
+      const district = districts[(day + k * 2) % districts.length]
+      const at = now - day * DAY - k * 3 * HOUR
+      out.push(order({
+        id: id--, name: names[n], phone: `0171${String(5000000 + day * 10 + k).padStart(7, "0")}`, district,
+        items: [{ productId: pid, title, variant, qty: 1, price }], status: returned ? "returned" : "delivered", courier: (["Pathao", "Steadfast", "RedX"] as const)[(day + k) % 3],
+        log: [{ at: at + 2 * DAY, text: returned ? "Returned: customer refused" : "Delivered" }, { at, text: "Order placed from storefront" }],
+      }, day * DAY + k * 3 * HOUR, now))
+    }
+  }
+  return out
 }
 
 export function sampleState(now = Date.now()): AppState {

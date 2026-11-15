@@ -47,6 +47,10 @@ function returnedAt(o: Order) {
   return o.log.find((l) => /returned/i.test(l.text))?.at
 }
 
+function waitingHint(ago: string) {
+  return ago.endsWith(" ago") ? `Oldest waiting ${ago.slice(0, -4)}` : `Oldest from ${ago.toLowerCase()}`
+}
+
 type LowStockRow = { key: string; productId: string; title: string; variant?: string; left: number }
 
 function lowStockRows(products: Product[]): LowStockRow[] {
@@ -129,7 +133,7 @@ function ActiveHome() {
   const cashParcels = COURIER_CASH.reduce((s, c) => s + c.parcels, 0)
 
   const tasks = [
-    { key: "confirm", count: toConfirm.length, label: "To confirm", hint: data.oldest !== null ? `Oldest waiting ${timeAgo(data.oldest, data.now).replace(/ ago$/, "")}` : "All confirmed", icon: PhoneCallIcon, href: "#orders", urgent: toConfirm.length > 0 },
+    { key: "confirm", count: toConfirm.length, label: "To confirm", hint: data.oldest !== null ? waitingHint(timeAgo(data.oldest, data.now)) : "All confirmed", icon: PhoneCallIcon, href: "#orders", urgent: toConfirm.length > 0 },
     { key: "ship", count: toShip.length, label: "To ship", hint: toShip.length ? "Book a courier" : "Nothing to ship", icon: TruckIcon, href: "#orders", urgent: false },
     { key: "returns", count: returns.length, label: "Returns", hint: "Restock when it’s back", icon: Undo2Icon, href: "#orders", urgent: false },
     { key: "stock", count: lowStock.length, label: "Low stock", hint: "2 or fewer left", icon: PackageIcon, href: "#products", urgent: false },
