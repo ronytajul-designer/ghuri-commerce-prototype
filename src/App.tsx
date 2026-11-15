@@ -3,6 +3,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { ThemeProvider, useAppTheme } from "@/components/mode-toggle"
 import { SAMPLE_ORDERS, type Order } from "@/data/orders"
 import { CheckoutPage } from "@/pages/checkout-page"
 import { OrdersPage } from "@/pages/orders-page"
@@ -18,6 +19,11 @@ function useHashRoute() {
 }
 
 export default function App() {
+  return <ThemeProvider><Shell /></ThemeProvider>
+}
+
+function Shell() {
+  const { theme } = useAppTheme()
   const route = useHashRoute()
   const [orders, setOrders] = useState<Order[]>(SAMPLE_ORDERS)
   const toConfirm = orders.filter((o) => o.status === "confirm").length
@@ -34,7 +40,7 @@ export default function App() {
           </SidebarInset>
         </SidebarProvider>
       )}
-      <Toaster position="bottom-center" />
+      <Toaster position="bottom-center" theme={theme} />
     </TooltipProvider>
   )
 }

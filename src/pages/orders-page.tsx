@@ -17,6 +17,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { ToneBadge } from "@/components/tone-badge"
+import { ModeToggle } from "@/components/mode-toggle"
 import { cn } from "@/lib/utils"
 import {
   type Courier, type Order, type OrderStatus, STAGES, STATUS, codDue, isValidBdPhone, riskOf, taka, total,
@@ -51,7 +52,10 @@ export function OrdersPage({ orders, setOrders }: Props) {
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-1 data-[orientation=vertical]:h-4" />
         <h1 className="text-base font-semibold">Orders</h1>
-        {counts.confirm > 0 && <ToneBadge tone="warning" className="ml-auto">{counts.confirm} to confirm</ToneBadge>}
+        <div className="ml-auto flex items-center gap-2">
+          {counts.confirm > 0 && <ToneBadge tone="warning">{counts.confirm} to confirm</ToneBadge>}
+          <ModeToggle />
+        </div>
       </header>
 
       <div className="grid flex-1 lg:grid-cols-[minmax(360px,420px)_1fr]">

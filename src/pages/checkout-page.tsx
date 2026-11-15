@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { taka } from "@/data/orders"
+import { ModeToggle } from "@/components/mode-toggle"
 
 // Sample zones. Real rates come from the merchant's Shipping settings.
 const DISTRICTS = [
@@ -196,7 +197,8 @@ function StoreHeader() {
         <span className="font-semibold tracking-wide">TAJUL 1</span>
         <span className="flex items-center gap-1 text-xs text-muted-foreground"><LockIcon className="size-3" aria-hidden="true" /> Secure checkout</span>
       </div>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        <ModeToggle />
         <Button variant="outline" size="icon" className="size-11" asChild><a href="#" aria-label="Call the seller"><PhoneIcon /></a></Button>
         <Button variant="outline" className="h-11" asChild><a href="#"><MessageCircleIcon /> WhatsApp</a></Button>
       </div>
