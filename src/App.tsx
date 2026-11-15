@@ -8,10 +8,11 @@ import { CheckoutPage } from "@/pages/checkout-page"
 import { OrderDetailPage, type OrderActions } from "@/pages/order-detail-page"
 import { OrdersListPage } from "@/pages/orders-list-page"
 import { ProductFormPage } from "@/pages/product-form-page"
+import { HomePage } from "@/pages/home-page"
 
-// Routes are plain hash names (#orders, #order-1011, #product-new, #checkout) so they also work inside a Claude artifact.
+// Routes are plain hash names (#home, #orders, #order-1011, #product-new, #checkout) so they also work inside a Claude artifact.
 function useHashRoute() {
-  const read = () => window.location.hash.replace("#", "") || "orders"
+  const read = () => window.location.hash.replace("#", "") || "home"
   const [route, setRoute] = useState(read)
   useEffect(() => {
     const on = () => { setRoute(read()); window.scrollTo(0, 0) }
@@ -54,7 +55,8 @@ function Shell() {
   if (route === "checkout") content = <CheckoutPage />
   else if (route === "product-new") content = <AppShell active="products" badges={{ orders: toConfirm }}><ProductFormPage /></AppShell>
   else if (orderMatch) content = <AppShell active="orders" badges={{ orders: toConfirm }}><OrderDetailPage order={orders.find((o) => o.id === Number(orderMatch[1]))} actions={actions} /></AppShell>
-  else content = <AppShell active="orders" badges={{ orders: toConfirm }}><OrdersListPage orders={orders} onBook={book} /></AppShell>
+  else if (route === "orders") content = <AppShell active="orders" badges={{ orders: toConfirm }}><OrdersListPage orders={orders} onBook={book} /></AppShell>
+  else content = <AppShell active="home" badges={{ orders: toConfirm }}><HomePage orders={orders} /></AppShell>
 
   return (
     <TooltipProvider>

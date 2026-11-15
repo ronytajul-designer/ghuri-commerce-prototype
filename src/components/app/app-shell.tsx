@@ -12,7 +12,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 export type NavKey = "home" | "products" | "collections" | "orders" | "customers" | "theme" | "settings"
 
 const NAV: { key: NavKey; title: string; icon: React.ComponentType; href: string }[] = [
-  { key: "home", title: "Home", icon: HomeIcon, href: "#orders" },
+  { key: "home", title: "Home", icon: HomeIcon, href: "#home" },
   { key: "products", title: "Products", icon: PackageIcon, href: "#product-new" },
   { key: "collections", title: "Collections", icon: FolderTreeIcon, href: "#orders" },
   { key: "orders", title: "Orders", icon: ShoppingCartIcon, href: "#orders" },

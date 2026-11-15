@@ -6,6 +6,7 @@ Clickable redesign prototype for [Ghuri Commerce](https://ghuricommerce.com), bu
 
 | Page | Link |
 |---|---|
+| Home (tasks, KPIs, setup checklist) | [#home](https://ronytajul-designer.github.io/ghuri-commerce-prototype/#home) |
 | Orders (COD confirm, courier booking) | [#orders](https://ronytajul-designer.github.io/ghuri-commerce-prototype/#orders) |
 | Add product | [#product-new](https://ronytajul-designer.github.io/ghuri-commerce-prototype/#product-new) |
 | Storefront checkout | [#checkout](https://ronytajul-designer.github.io/ghuri-commerce-prototype/#checkout) |

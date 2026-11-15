@@ -62,8 +62,10 @@ Text on these badges uses new `--success-foreground`, `--warning-foreground` and
 | `OrderProgress` | Four-step COD progress bar. |
 | `BookCourierDialog`, `CancelOrderDialog` | Order actions used from list and detail. |
 | `MobileSaveBar` | Fixed Save/Discard on phones for long forms. |
+| `StatCard` | One KPI with change vs previous period; `goodWhen` sets which direction is good. |
+| `ShareStoreButton` | Copy link, Facebook, WhatsApp. Used on Home and empty states. |
 
-shadcn/ui components used as is: Card, Table, Tabs, Field, Input, InputGroup, Select, Textarea, Checkbox, RadioGroup, Switch, ToggleGroup, Badge, Button, Alert, Dialog, AlertDialog, Empty, Sidebar, DropdownMenu, Sonner.
+shadcn/ui components used as is: Chart (recharts), Progress, Card, Table, Tabs, Field, Input, InputGroup, Select, Textarea, Checkbox, RadioGroup, Switch, ToggleGroup, Badge, Button, Alert, Dialog, AlertDialog, Empty, Sidebar, DropdownMenu, Sonner.
 
 ## Layout patterns
 
