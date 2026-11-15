@@ -69,6 +69,7 @@ export function CheckoutPage() {
       )}
 
       <main className="mx-auto flex max-w-lg flex-col gap-3 p-4">
+        <h1 className="sr-only">Checkout</h1>
         <Card>
           <CardHeader><CardTitle>1. Your mobile number</CardTitle></CardHeader>
           <CardContent>

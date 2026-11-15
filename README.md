@@ -1,32 +1,26 @@
-# React + TypeScript + Vite
+# Ghuri Commerce prototype
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Clickable redesign prototype for [Ghuri Commerce](https://ghuricommerce.com), built with React, Tailwind v4 and shadcn/ui using the live admin's theme tokens.
 
-Currently, two official plugins are available:
+**Live:** https://ronytajul-designer.github.io/ghuri-commerce-prototype/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Page | Link |
+|---|---|
+| Orders (COD confirm, courier booking) | [#orders](https://ronytajul-designer.github.io/ghuri-commerce-prototype/#orders) |
+| Add product | [#product-new](https://ronytajul-designer.github.io/ghuri-commerce-prototype/#product-new) |
+| Storefront checkout | [#checkout](https://ronytajul-designer.github.io/ghuri-commerce-prototype/#checkout) |
 
-## React Compiler
+All customer names and orders are sample data.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run locally
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Deploy
+
+Every push to `main` builds and deploys to GitHub Pages (`.github/workflows/pages.yml`).
+
+`npm run artifact` builds a single-file page for the Claude artifact preview.
