@@ -1,5 +1,5 @@
 import { MotionConfig, motion } from "motion/react"
-import { useId, useRef, useState } from "react"
+import { useId, useLayoutEffect, useRef, useState } from "react"
 import { spring } from "@/lib/motion-tokens"
 import { cn } from "@/lib/utils"
 
@@ -95,7 +95,10 @@ export function SegmentedTabsTuffui<T extends string = string>({
   )
 }
 
-/** Navigation tabs (links). Same visual; the current link carries aria-current="page". */
+// Remembers the last active nav item per nav, so the pill can slide from it after the page changes.
+const lastNav = new Map<string, string>()
+
+/** Navigation tabs (links). Same visual and the same sliding pill as the state tabs. */
 export function SegmentedNavTuffui({
   items, active, label, className,
 }: {
@@ -104,24 +107,41 @@ export function SegmentedNavTuffui({
   label: string
   className?: string
 }) {
+  const ref = useRef<HTMLUListElement>(null)
+  const [from, setFrom] = useState<{ x: number; width: number } | null>(null)
+  useLayoutEffect(() => {
+    const prev = lastNav.get(label)
+    lastNav.set(label, active)
+    if (!prev || prev === active || !ref.current) return
+    const a = ref.current.querySelector<HTMLElement>(`[data-key="${CSS.escape(prev)}"]`)
+    const b = ref.current.querySelector<HTMLElement>(`[data-key="${CSS.escape(active)}"]`)
+    if (a && b) setFrom({ x: a.offsetLeft - b.offsetLeft, width: a.offsetWidth })
+  }, [active, label])
+
   return (
-    <Scroller className={className}>
-      <nav aria-label={label}>
-        <ul className={TRACK} data-tabs-tuffui="">
-          {items.map((n) => {
-            const on = n.key === active
-            return (
-              <li key={n.key} className="h-full">
-                <a href={n.href} aria-current={on ? "page" : undefined}
-                  className={cn(ITEM, on ? "text-foreground" : "text-muted-foreground hover:text-foreground")}>
-                  {on && <span className={PILL} data-pill="" />}
-                  <Label label={n.label} count={n.count} />
-                </a>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
-    </Scroller>
+    <MotionConfig reducedMotion="user">
+      <Scroller className={className}>
+        <nav aria-label={label}>
+          <ul ref={ref} className={TRACK} data-tabs-tuffui="">
+            {items.map((n) => {
+              const on = n.key === active
+              return (
+                <li key={n.key} className="h-full" data-key={n.key}>
+                  <a href={n.href} aria-current={on ? "page" : undefined}
+                    className={cn(ITEM, on ? "text-foreground" : "text-muted-foreground hover:text-foreground")}>
+                    {on && (
+                      <motion.span key={from ? `${from.x}` : "still"} className={PILL} data-pill="" style={{ transformOrigin: "left" }}
+                        initial={from ? { x: from.x, width: from.width } : false}
+                        animate={{ x: 0, width: "100%" }} transition={spring} />
+                    )}
+                    <Label label={n.label} count={n.count} />
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
+      </Scroller>
+    </MotionConfig>
   )
 }
