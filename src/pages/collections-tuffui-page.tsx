@@ -87,7 +87,7 @@ export function CollectionFormTuffuiPage({ id }: { id?: string }) {
 
   const save = () => {
     setTried(true)
-    if (!title.trim()) { toast.error("Enter a name to save."); return }
+    if (!title.trim()) return
     const cid = existing?.id ?? uid()
     set((s) => ({
       ...s,

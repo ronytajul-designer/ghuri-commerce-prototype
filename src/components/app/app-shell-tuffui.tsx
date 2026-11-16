@@ -21,7 +21,7 @@ const NAV: { key: NavKey; title: string; icon: typeof House; href: string }[] = 
   { key: "orders", title: "Orders", icon: ShoppingCart, href: "#orders-tuffui" },
   { key: "customers", title: "Customers", icon: Users, href: "#customers-tuffui" },
   { key: "theme", title: "Theme", icon: Palette, href: "#theme-tuffui" },
-  { key: "settings", title: "Settings", icon: Gear, href: "#settings-general" },
+  { key: "settings", title: "Settings", icon: Gear, href: "#settings-tuffui-general" },
 ]
 
 const row =
@@ -96,7 +96,7 @@ function SidebarBody({ active, badges, onNavigate, onClose }: {
             </button>
           }
           groups={[
-            { id: "account", items: [{ id: "account", label: "Account", icon: outline(User), onSelect: () => go("settings-account") }] },
+            { id: "account", items: [{ id: "account", label: "Account", icon: outline(User), onSelect: () => go("settings-tuffui-account") }] },
             {
               id: "data", label: "Prototype data", items: [
                 { id: "sample", label: "Load sample store", icon: outline(Database), onSelect: () => { reset("sample"); go("home"); toast("Sample store loaded") } },

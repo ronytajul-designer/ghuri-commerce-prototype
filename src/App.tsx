@@ -19,6 +19,9 @@ import { ThemePage } from "@/pages/theme-page"
 import {
   AccountSettingsPage, AiSettingsPage, DomainSettingsPage, GeneralSettingsPage, PaymentsSettingsPage, ShippingSettingsPage, TeamSettingsPage,
 } from "@/pages/settings-pages"
+import {
+  AccountSettingsTuffuiPage, AiSettingsTuffuiPage, DomainSettingsTuffuiPage, GeneralSettingsTuffuiPage, PaymentsSettingsTuffuiPage, ShippingSettingsTuffuiPage, TeamSettingsTuffuiPage,
+} from "@/pages/settings-tuffui-pages"
 import { CartPage, StoreHomePage, StoreProductPage } from "@/pages/storefront-pages"
 import { LoginPage, SignupPage } from "@/pages/auth-pages"
 import { TuffuiPreviewPage } from "@/pages/tuffui-preview-page"
@@ -99,6 +102,13 @@ function Shell() {
   else if (route === "home-tuffui") content = <AppShellTuffui active="home" badges={{ orders: toConfirm }}><HomeTuffuiPage /></AppShellTuffui>
   else if (route === "tuffui") content = admin("home", <TuffuiPreviewPage />)
   else if (route === "theme-tuffui") content = tuff("theme", <ThemeTuffuiPage />)
+  else if (route === "settings-tuffui" || route === "settings-tuffui-general") content = tuff("settings", <GeneralSettingsTuffuiPage />)
+  else if (route === "settings-tuffui-shipping") content = tuff("settings", <ShippingSettingsTuffuiPage />)
+  else if (route === "settings-tuffui-payments") content = tuff("settings", <PaymentsSettingsTuffuiPage />)
+  else if (route === "settings-tuffui-team") content = tuff("settings", <TeamSettingsTuffuiPage />)
+  else if (route === "settings-tuffui-domains") content = tuff("settings", <DomainSettingsTuffuiPage />)
+  else if (route === "settings-tuffui-ai") content = tuff("settings", <AiSettingsTuffuiPage />)
+  else if (route === "settings-tuffui-account") content = tuff("settings", <AccountSettingsTuffuiPage />)
   else if (route === "theme") content = admin("theme", <ThemePage />)
   else if (route === "settings" || route === "settings-general") content = admin("settings", <GeneralSettingsPage />)
   else if (route === "settings-shipping") content = admin("settings", <ShippingSettingsPage />)
