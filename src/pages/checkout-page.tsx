@@ -238,7 +238,7 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
   const actions = (
     <div className="flex flex-col gap-4">
       <div className="hidden flex-col gap-4 lg:flex">{alerts}</div>
-      <Button type="submit" size="lg" className="w-full">{placeLabel}</Button>
+      <Button type="submit" size="lg" className="w-full rounded-full">{placeLabel}</Button>
       <p className="text-center text-sm text-muted-foreground">
         {pay !== "cod" ? `Paid by ${WALLET_NAME[pay]}. The seller checks your transaction ID and calls to confirm.`
           : advanceMode ? "The rest is paid in cash on delivery. The seller calls to confirm first."
@@ -269,10 +269,10 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
 
   return (
     <StoreFrame back={{ href: "#cart", label: "Back to cart" }}>
-      <div className="flex-1 bg-muted/40">
+      <div className="flex-1">
         <form noValidate onSubmit={submit} className="mx-auto grid w-full max-w-5xl items-start gap-6 px-4 py-6 md:px-8 md:py-8 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="flex items-center justify-between gap-4 lg:col-span-2">
-            <h1 className="text-2xl font-semibold tracking-tight">Checkout</h1>
+            <h1 className="text-3xl font-semibold tracking-tighter">Checkout</h1>
             <span className="flex items-center gap-2 text-sm text-muted-foreground"><LockIcon className="size-4" aria-hidden="true" />Secure checkout</span>
           </div>
 
@@ -425,7 +425,7 @@ function Confirmation({ id, phone, district, eta, total, paid, fee, pay }: { id:
       <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-6 md:py-8">
         <div className="flex flex-col items-center gap-2 py-4 text-center">
           <div className="flex size-12 items-center justify-center rounded-full bg-success/15"><CheckIcon className="size-6 text-success-foreground" aria-hidden="true" /></div>
-          <h1 className="text-2xl font-semibold tracking-tight">Order placed</h1>
+          <h1 className="text-3xl font-semibold tracking-tighter">Order placed</h1>
           <p className="text-sm text-muted-foreground">Order #{id} · SMS sent to {phone}</p>
         </div>
         <Card>
@@ -457,7 +457,7 @@ function Confirmation({ id, phone, district, eta, total, paid, fee, pay }: { id:
           </CardContent>
         </Card>
         {state.store.phone && <p className="text-center text-sm text-muted-foreground">Need help? Call <a href={`tel:${state.store.phone}`} className="text-foreground underline underline-offset-4">{state.store.phone}</a></p>}
-        <Button size="lg" asChild><a href="#store">Continue shopping</a></Button>
+        <Button size="lg" className="rounded-full" asChild><a href="#store">Continue shopping</a></Button>
         <a href={`#order-${id}`} className="text-center text-xs text-muted-foreground underline underline-offset-4">See this order in the admin (prototype)</a>
       </main>
     </StoreFrame>

@@ -53,7 +53,7 @@ function handleFrom(name: string, seed: string) {
 
 function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-muted/40 p-4 py-16">
+    <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-4 py-16">
       <div className="absolute top-2 right-2 md:top-4 md:right-4"><ModeToggle /></div>
       <div className="flex items-center gap-2">
         <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-base font-semibold text-primary-foreground" aria-hidden="true">G</div>

@@ -24,7 +24,7 @@ export function ChoiceCardGroup<T extends string>({
       className={cn("grid gap-2", columns === 2 && "grid-cols-2", className)}
     >
       {choices.map((c) => (
-        <FieldLabel key={c.value} htmlFor={`${name}-${c.value}`}>
+        <FieldLabel key={c.value} htmlFor={`${name}-${c.value}`} className="bg-card has-data-[state=checked]:border-ring has-data-[state=checked]:bg-ring/5 dark:has-data-[state=checked]:bg-ring/10">
           <Field orientation="horizontal">
             <FieldContent>
               <FieldTitle>{c.title}</FieldTitle>
