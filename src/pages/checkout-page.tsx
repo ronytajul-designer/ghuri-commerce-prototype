@@ -104,7 +104,7 @@ export function CheckoutPage() {
     return (
       <StoreFrame back={{ href: "#store", label: "Back to store" }}>
         <main className="mx-auto w-full max-w-xl px-4 py-12">
-          <Card><Empty className="py-12"><EmptyHeader><EmptyMedia variant="icon"><ShoppingBagIcon /></EmptyMedia><EmptyTitle>Your cart is empty</EmptyTitle></EmptyHeader><EmptyContent><Button asChild><a href="#store">Shop now</a></Button></EmptyContent></Empty></Card>
+          <h1 className="sr-only">Checkout</h1><Card><Empty className="py-12"><EmptyHeader><EmptyMedia variant="icon"><ShoppingBagIcon /></EmptyMedia><EmptyTitle>Your cart is empty</EmptyTitle></EmptyHeader><EmptyContent><Button asChild><a href="#store">Shop now</a></Button></EmptyContent></Empty></Card>
         </main>
       </StoreFrame>
     )
