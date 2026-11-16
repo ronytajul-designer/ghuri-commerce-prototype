@@ -17,6 +17,10 @@ import { productStock, stockFor, useApp } from "@/store/store"
 import type { AppState, Product, ThemeSettings } from "@/store/types"
 import { cartLines } from "@/pages/storefront-pages"
 
+/** Contrast fixes shared by the TuffUI storefront, checkout and auth pages: 3:1 edges on fields and unchecked choices. */
+export const EDGE = "shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--foreground)_55%,transparent)]"
+export const EDGES = "[&_input:not([type=file]):not([data-affix])]:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--foreground)_55%,transparent)] [&_textarea]:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--foreground)_55%,transparent)] [&_[role=combobox]]:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--foreground)_55%,transparent)] [&_[role=radio][aria-checked=false]]:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--foreground)_55%,transparent)]"
+
 export const go = (hash: string) => { window.location.hash = hash }
 
 /* ---------- Shared frame ---------- */
@@ -70,7 +74,7 @@ function StoreFooterTuffui() {
 export function StoreFrameTuffui({ back, children }: { back?: { href: string; label: string }; children: React.ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
-      <div className="flex min-h-svh flex-col bg-background">
+      <div className={cn("flex min-h-svh flex-col bg-background", EDGES)}>
         <StoreHeaderTuffui back={back} />
         <motion.div className="flex flex-1 flex-col" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={enter}>{children}</motion.div>
         <StoreFooterTuffui />
@@ -106,7 +110,7 @@ function ChipGroup({ label, value, onValueChange, options, className }: { label:
             tabIndex={on || !value ? 0 : -1} onClick={() => onValueChange(o.value)}
             className={cn(
               "relative h-9 min-w-12 rounded-full px-4 text-sm font-medium transition-[color,scale] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:line-through disabled:opacity-40",
-              on ? "text-background" : "bg-foreground/[0.06] text-foreground hover:bg-foreground/[0.1]",
+              on ? "bg-foreground text-background" : "bg-foreground/[0.06] text-foreground hover:bg-foreground/[0.1]",
             )}>
             {on && <motion.span layoutId={pill} transition={spring} className="absolute inset-0 rounded-full bg-foreground" aria-hidden="true" />}
             <span className="relative">{o.label}</span>

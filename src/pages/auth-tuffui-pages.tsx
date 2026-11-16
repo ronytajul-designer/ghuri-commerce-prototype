@@ -7,6 +7,7 @@ import { Panel, Shell } from "@/components/ui/surface"
 import { TextField } from "@/components/ui/text-field"
 import { ThemeMenu } from "@/components/app/app-shell-tuffui"
 import { NEGATIVE_TEXT } from "@/components/app/order-bits-tuffui"
+import { EDGE, EDGES } from "@/pages/storefront-tuffui-pages"
 import { cleanPhone, isValidBdPhone, slugify } from "@/lib/bd"
 import { enter } from "@/lib/motion-tokens"
 import { outline } from "@/lib/phosphor"
@@ -53,7 +54,7 @@ function handleFrom(name: string, seed: string) {
 function AuthLayout({ title, description, children, footer }: { title: string; description: string; children: React.ReactNode; footer?: React.ReactNode }) {
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-4 py-16">
+      <div className={cn("relative flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-4 py-16", EDGES)}>
         <div className="absolute top-2 right-2 md:top-4 md:right-4"><ThemeMenu /></div>
         <div className="flex items-center gap-2">
           <div className="flex size-8 items-center justify-center rounded-xl bg-foreground text-base font-semibold text-background" aria-hidden="true">G</div>
@@ -125,9 +126,9 @@ function AffixField({ label, labelAside, description, error, status, end, inputR
         <label htmlFor={id} className="text-[0.8125rem] font-medium">{label}</label>
         {labelAside}
       </div>
-      <div className={cn("flex h-9 items-center rounded-full bg-foreground/[0.06] pr-0.5 transition-[background-color] duration-150 focus-within:bg-foreground/[0.1] hover:bg-foreground/[0.08]", error && "bg-negative/10")}>
-        <input id={id} ref={inputRef} aria-invalid={error ? "true" : undefined} aria-describedby={describedBy} {...props}
-          className="h-full min-w-0 flex-1 rounded-full bg-transparent pl-3.5 text-sm text-foreground outline-none placeholder:text-muted-foreground" />
+      <div className={cn("flex h-9 items-center rounded-full bg-foreground/[0.06] pr-0.5 transition-[background-color] duration-150 focus-within:bg-foreground/[0.1] hover:bg-foreground/[0.08]", EDGE, error && "bg-negative/10")}>
+        <input id={id} data-affix="" ref={inputRef} aria-invalid={error ? "true" : undefined} aria-describedby={describedBy} {...props}
+          className="h-full min-w-0 flex-1 bg-transparent pl-3.5 text-sm text-foreground outline-none placeholder:text-muted-foreground" />
         {end}
       </div>
       {status && <div id={`${id}-status`} aria-live="polite" className="px-1 text-xs">{status}</div>}
