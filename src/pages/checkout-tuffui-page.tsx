@@ -111,7 +111,7 @@ export function CheckoutTuffuiPage() {
     return (
       <StoreFrameTuffui back={{ href: "store-tuffui", label: "Back to store" }}>
         <main className="mx-auto w-full max-w-xl px-4 py-12">
-          <Shell><Panel><EmptyState icon={ShoppingBag} title="Your cart is empty" action={{ label: "Shop now", onClick: () => go("store-tuffui") }} /></Panel></Shell>
+          <h1 className="sr-only">Checkout</h1><Shell><Panel><EmptyState icon={ShoppingBag} title="Your cart is empty" action={{ label: "Shop now", onClick: () => go("store-tuffui") }} /></Panel></Shell>
         </main>
       </StoreFrameTuffui>
     )
