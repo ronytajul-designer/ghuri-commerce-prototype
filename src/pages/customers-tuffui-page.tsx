@@ -50,7 +50,7 @@ export function CustomersTuffuiPage() {
 
   const columns: DataColumn<Row>[] = [
     {
-      key: "customer", label: "Customer", format: (_v, r) => {
+      key: "customer", label: "Customer", width: "30%", format: (_v, r) => {
         const c = byPhone.get(r.id)!
         return (
           <div className="flex min-w-0 flex-col gap-1">
@@ -60,11 +60,11 @@ export function CustomersTuffuiPage() {
         )
       },
     },
-    { key: "district", label: "Area", priority: 3 },
-    { key: "orders", label: "Orders", align: "right", priority: 2, format: (v) => <span className="tabular-nums">{v}</span> },
-    { key: "returned", label: "Returned", align: "right", priority: 3, format: (v) => <span className={v ? `tabular-nums ${NEG}` : "tabular-nums"}>{v}</span> },
-    { key: "spent", label: "Spent", align: "right", priority: 1, format: (v) => <Money value={Number(v)} /> },
-    { key: "last", label: "Last order", priority: 3, format: (_v, r) => <span className="text-muted-foreground">{timeAgo(byPhone.get(r.id)!.lastAt)}</span> },
+    { key: "district", label: "Area", width: "16%", priority: 3 },
+    { key: "orders", label: "Orders", width: "10%", align: "right", priority: 2, format: (v) => <span className="tabular-nums">{v}</span> },
+    { key: "returned", label: "Returned", width: "12%", align: "right", priority: 3, format: (v) => <span className={v ? `tabular-nums ${NEG}` : "tabular-nums"}>{v}</span> },
+    { key: "spent", label: "Spent", width: "14%", align: "right", priority: 1, format: (v) => <Money value={Number(v)} /> },
+    { key: "last", label: "Last order", width: "18%", priority: 3, format: (_v, r) => <span className="text-muted-foreground">{timeAgo(byPhone.get(r.id)!.lastAt)}</span> },
   ]
 
   return (
@@ -82,7 +82,7 @@ export function CustomersTuffuiPage() {
           {rows.length === 0 ? (
             <Shell><Panel><EmptyState icon={outline(MagnifyingGlass)} title="No customers match" description="Try another name, number or tab." /></Panel></Shell>
           ) : (
-            <DataTable key={segment + q} data={rows} columns={columns} title="Customers" pageSize={20} searchable={false} onRowClick={(r) => go(`customer-tuffui-${r.id}`)} className="max-w-none" />
+            <div className="[&_table]:table-fixed"><DataTable key={segment + q} data={rows} columns={columns} title="Customers" pageSize={20} searchable={false} onRowClick={(r) => go(`customer-tuffui-${r.id}`)} className="max-w-none" /></div>
           )}
           <p className="text-sm text-muted-foreground">{rows.length} customer{rows.length === 1 ? "" : "s"}</p>
         </motion.div>

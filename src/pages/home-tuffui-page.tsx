@@ -182,7 +182,7 @@ function ActiveHome() {
 
   const rows: RecentRow[] = orders.slice(0, 5).map((o) => ({ id: String(o.id), order: `#${o.id}`, customer: o.name, phone: o.phone, district: o.district, status: o.status, total: orderTotal(o) }))
   const columns: DataColumn<RecentRow>[] = [
-    { key: "order", label: "Order", width: "w-20", format: (_v, r) => <a href={`#order-tuffui-${r.id}`} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>{r.order}</a> },
+    { key: "order", label: "Order", width: "15%", format: (_v, r) => <a href={`#order-tuffui-${r.id}`} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>{r.order}</a> },
     {
       key: "customer", label: "Customer", format: (_v, r) => (
         <div className="flex min-w-0 flex-col">

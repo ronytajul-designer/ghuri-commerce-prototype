@@ -47,7 +47,7 @@ export function OrdersTuffuiPage({ initialStage = "confirm" }: { initialStage?: 
 
   const columns: DataColumn<Row>[] = [
     {
-      key: "order", label: "Order", width: "w-24", format: (_v, r) => (
+      key: "order", label: "Order", width: "12%", format: (_v, r) => (
         <div className="flex flex-col">
           <a href={`#order-tuffui-${r.id}`} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>{r.order}</a>
           <span className="text-xs text-muted-foreground">{timeAgo(byId.get(r.id)!.createdAt)}</span>
@@ -55,7 +55,7 @@ export function OrdersTuffuiPage({ initialStage = "confirm" }: { initialStage?: 
       ),
     },
     {
-      key: "customer", label: "Customer", format: (_v, r) => {
+      key: "customer", label: "Customer", width: "26%", format: (_v, r) => {
         const o = byId.get(r.id)!
         return (
           <div className="flex min-w-0 flex-col whitespace-normal">
@@ -67,14 +67,14 @@ export function OrdersTuffuiPage({ initialStage = "confirm" }: { initialStage?: 
       },
     },
     {
-      key: "district", label: "Delivery", priority: 3, format: (_v, r) => {
+      key: "district", label: "Delivery", width: "14%", priority: 3, format: (_v, r) => {
         const o = byId.get(r.id)!
         return <div className="flex flex-col"><span>{o.district}</span><span className="text-xs text-muted-foreground">{o.thana || "No thana"}</span></div>
       },
     },
-    { key: "pay", label: "Payment", priority: 3, format: (_v, r) => <PaymentPill order={byId.get(r.id)!} /> },
-    { key: "signals", label: "Signals", priority: 3, format: (_v, r) => signals(byId.get(r.id)!) },
-    { key: "total", label: "Total", align: "right", priority: 1, format: (v) => <Money value={Number(v)} className="font-sans text-sm font-medium" /> },
+    { key: "pay", label: "Payment", width: "14%", priority: 3, format: (_v, r) => <PaymentPill order={byId.get(r.id)!} /> },
+    { key: "signals", label: "Signals", width: "22%", priority: 3, format: (_v, r) => signals(byId.get(r.id)!) },
+    { key: "total", label: "Total", width: "12%", align: "right", priority: 1, format: (v) => <Money value={Number(v)} className="font-sans text-sm font-medium" /> },
   ]
 
   return (
@@ -105,7 +105,7 @@ export function OrdersTuffuiPage({ initialStage = "confirm" }: { initialStage?: 
               </Panel>
             </Shell>
           ) : (
-            <DataTable data={rows} columns={columns} title={orderStatusLabel(stage)} subtitle={`${rows.length} order${rows.length === 1 ? "" : "s"}`}
+            <div className="[&_table]:table-fixed"><DataTable data={rows} columns={columns} title={orderStatusLabel(stage)} subtitle={`${rows.length} order${rows.length === 1 ? "" : "s"}`}
               pageSize={20} searchable={false} selectable selected={checked} onSelectedChange={setChecked}
               onRowClick={(r) => open(r.id)} className="max-w-none [&_tbody_td]:align-top [&_.text-brand]:text-info-foreground [&_[role=checkbox][aria-checked=false]]:bg-foreground/50"
               actions={() => (
@@ -113,7 +113,7 @@ export function OrdersTuffuiPage({ initialStage = "confirm" }: { initialStage?: 
                   {stage === "ship" && <ActionButton variant="primary" size="sm" icon={outline(Truck)} onClick={() => setBooking(true)}>Book courier</ActionButton>}
                   <ActionButton variant="secondary" size="sm" icon={outline(Printer)} onClick={() => toast("Invoices ready to print (prototype)")}>Print invoices</ActionButton>
                 </span>
-              )} />
+              )} /></div>
           )}
         </motion.div>
       </div>
