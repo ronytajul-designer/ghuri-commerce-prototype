@@ -15,10 +15,10 @@ import { toast } from "sonner"
 import { useApp } from "@/store/store"
 
 const NAV: { key: NavKey; title: string; icon: typeof House; href: string }[] = [
-  { key: "home", title: "Home", icon: House, href: "#home" },
-  { key: "products", title: "Products", icon: Package, href: "#products" },
+  { key: "home", title: "Home", icon: House, href: "#home-tuffui" },
+  { key: "products", title: "Products", icon: Package, href: "#products-tuffui" },
   { key: "collections", title: "Collections", icon: FolderSimple, href: "#collections" },
-  { key: "orders", title: "Orders", icon: ShoppingCart, href: "#orders" },
+  { key: "orders", title: "Orders", icon: ShoppingCart, href: "#orders-tuffui" },
   { key: "customers", title: "Customers", icon: Users, href: "#customers" },
   { key: "theme", title: "Theme", icon: Palette, href: "#theme" },
   { key: "settings", title: "Settings", icon: Gear, href: "#settings-general" },

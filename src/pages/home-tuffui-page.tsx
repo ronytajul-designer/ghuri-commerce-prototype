@@ -165,9 +165,9 @@ function ActiveHome() {
   const cashParcels = COURIER_CASH.reduce((s, c) => s + c.parcels, 0)
 
   const tasks = [
-    { key: "confirm", count: toConfirm.length, label: "To confirm", hint: data.oldest !== null ? waitingHint(timeAgo(data.oldest, data.now)) : "All confirmed", icon: Phone, href: "#orders", urgent: toConfirm.length > 0 },
-    { key: "ship", count: toShip.length, label: "To ship", hint: toShip.length ? "Book a courier" : "Nothing to ship", icon: Truck, href: "#orders-ship", urgent: false },
-    { key: "returns", count: returns.length, label: "Returns", hint: "Restock when it’s back", icon: ArrowUUpLeft, href: "#orders-returned", urgent: false },
+    { key: "confirm", count: toConfirm.length, label: "To confirm", hint: data.oldest !== null ? waitingHint(timeAgo(data.oldest, data.now)) : "All confirmed", icon: Phone, href: "#orders-tuffui", urgent: toConfirm.length > 0 },
+    { key: "ship", count: toShip.length, label: "To ship", hint: toShip.length ? "Book a courier" : "Nothing to ship", icon: Truck, href: "#orders-tuffui-ship", urgent: false },
+    { key: "returns", count: returns.length, label: "Returns", hint: "Restock when it’s back", icon: ArrowUUpLeft, href: "#orders-tuffui-returned", urgent: false },
     { key: "stock", count: lowStock.length, label: "Low stock", hint: "2 or fewer left", icon: Package, href: "#products", urgent: false },
   ]
 
@@ -182,7 +182,7 @@ function ActiveHome() {
 
   const rows: RecentRow[] = orders.slice(0, 5).map((o) => ({ id: String(o.id), order: `#${o.id}`, customer: o.name, phone: o.phone, district: o.district, status: o.status, total: orderTotal(o) }))
   const columns: DataColumn<RecentRow>[] = [
-    { key: "order", label: "Order", width: "w-20", format: (_v, r) => <a href={`#order-${r.id}`} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>{r.order}</a> },
+    { key: "order", label: "Order", width: "w-20", format: (_v, r) => <a href={`#order-tuffui-${r.id}`} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>{r.order}</a> },
     {
       key: "customer", label: "Customer", format: (_v, r) => (
         <div className="flex min-w-0 flex-col">
@@ -280,8 +280,8 @@ function ActiveHome() {
           </Shell>
 
           <div className="flex flex-col gap-2">
-            <DataTable data={rows} columns={columns} title="Recent orders" pageSize={5} searchable={false} onRowClick={(r) => go(`order-${r.id}`)} className="max-w-none" />
-            <div className="flex justify-end"><ActionButton variant="quiet" size="sm" onClick={() => go("orders")}>All orders<ArrowRight className="size-4" aria-hidden="true" /></ActionButton></div>
+            <DataTable data={rows} columns={columns} title="Recent orders" pageSize={5} searchable={false} onRowClick={(r) => go(`order-tuffui-${r.id}`)} className="max-w-none" />
+            <div className="flex justify-end"><ActionButton variant="quiet" size="sm" onClick={() => go("orders-tuffui")}>All orders<ArrowRight className="size-4" aria-hidden="true" /></ActionButton></div>
           </div>
         </PageColumn>
 

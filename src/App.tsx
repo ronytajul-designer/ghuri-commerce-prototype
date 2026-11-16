@@ -23,6 +23,10 @@ import { CartPage, StoreHomePage, StoreProductPage } from "@/pages/storefront-pa
 import { LoginPage, SignupPage } from "@/pages/auth-pages"
 import { TuffuiPreviewPage } from "@/pages/tuffui-preview-page"
 import { HomeTuffuiPage } from "@/pages/home-tuffui-page"
+import { ProductsTuffuiPage } from "@/pages/products-tuffui-page"
+import { ProductFormTuffuiPage } from "@/pages/product-form-tuffui-page"
+import { OrdersTuffuiPage } from "@/pages/orders-tuffui-page"
+import { OrderDetailTuffuiPage } from "@/pages/order-detail-tuffui-page"
 
 /**
  * Routes are plain hash names so they also work inside a Claude artifact:
@@ -57,6 +61,7 @@ function Shell() {
   const { state } = useApp()
   const toConfirm = state.orders.filter((o) => o.status === "confirm").length
   const admin = (active: NavKey, page: React.ReactNode) => <AppShell active={active} badges={{ orders: toConfirm }}>{page}</AppShell>
+  const tuff = (active: NavKey, page: React.ReactNode) => <AppShellTuffui active={active} badges={{ orders: toConfirm }}>{page}</AppShellTuffui>
   const m = (re: RegExp) => route.match(re)?.[1]
 
   let content: React.ReactNode
@@ -69,6 +74,12 @@ function Shell() {
   else if (route === "orders") content = admin("orders", <OrdersListPage />)
   else if (m(/^orders-(\w+)$/) && STAGES.includes(m(/^orders-(\w+)$/) as OrderStatus)) content = admin("orders", <OrdersListPage key={route} initialStage={m(/^orders-(\w+)$/) as OrderStatus} />)
   else if (m(/^order-(\d+)$/)) content = admin("orders", <OrderDetailPage key={route} id={Number(m(/^order-(\d+)$/))} />)
+  else if (route === "products-tuffui") content = tuff("products", <ProductsTuffuiPage />)
+  else if (route === "product-tuffui-new") content = tuff("products", <ProductFormTuffuiPage key={route} />)
+  else if (m(/^product-tuffui-(.+)$/)) content = tuff("products", <ProductFormTuffuiPage key={route} id={m(/^product-tuffui-(.+)$/)} />)
+  else if (route === "orders-tuffui") content = tuff("orders", <OrdersTuffuiPage />)
+  else if (m(/^orders-tuffui-(\w+)$/) && STAGES.includes(m(/^orders-tuffui-(\w+)$/) as OrderStatus)) content = tuff("orders", <OrdersTuffuiPage key={route} initialStage={m(/^orders-tuffui-(\w+)$/) as OrderStatus} />)
+  else if (m(/^order-tuffui-(\d+)$/)) content = tuff("orders", <OrderDetailTuffuiPage key={route} id={Number(m(/^order-tuffui-(\d+)$/))} />)
   else if (route === "products") content = admin("products", <ProductsPage />)
   else if (route === "product-new") content = admin("products", <ProductFormPage key={route} />)
   else if (m(/^product-(.+)$/)) content = admin("products", <ProductFormPage key={route} id={m(/^product-(.+)$/)} />)
