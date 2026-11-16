@@ -6,17 +6,17 @@ export type ButtonVariant = "primary" | "secondary" | "quiet" | "danger";
 export type ButtonSize = "sm" | "md";
 
 const variants: Record<ButtonVariant, string> = {
-  // Solid brand fill, white text. Dark mode deepens the brand blue so white text keeps 4.5:1.
-  primary:
-    "bg-brand text-brand-foreground shadow-sm hover:bg-[color-mix(in_oklab,var(--brand),black_14%)] active:bg-[color-mix(in_oklab,var(--brand),black_22%)] dark:bg-[color-mix(in_oklab,var(--brand),black_16%)] dark:hover:bg-[color-mix(in_oklab,var(--brand),black_26%)] dark:active:bg-[color-mix(in_oklab,var(--brand),black_32%)]",
+  // TuffUI site primary ("Browse components"): solid foreground pill, inverted text.
+  primary: "bg-foreground text-background hover:opacity-90 active:opacity-85",
+  // TuffUI silver button: gradient fill, hairline edge, soft shadow.
   secondary:
-    "border border-foreground/50 bg-foreground/[0.06] text-foreground hover:border-foreground/75 hover:bg-foreground/[0.1] active:bg-foreground/[0.14]",
-  quiet: "text-muted-foreground hover:bg-foreground/[0.08] hover:text-foreground active:bg-foreground/[0.12]",
+    "border border-(--button-edge) bg-(image:--button) bg-origin-border text-(--button-foreground) shadow-(--button-shadow) hover:bg-(image:--button-hover)",
+  quiet: "text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground",
   danger: "bg-negative/15 text-negative hover:bg-negative/25",
 };
 
 const sizes: Record<ButtonSize, { base: string; icon: string; glyph: string }> = {
-  sm: { base: "h-8 gap-2 px-4 text-[0.8125rem]", icon: "size-8", glyph: "size-4" },
+  sm: { base: "h-8 gap-1.5 px-3.5 text-[0.8125rem]", icon: "size-8", glyph: "size-3.5" },
   md: { base: "h-9 gap-2 px-4 text-sm", icon: "size-9", glyph: "size-4" },
 };
 

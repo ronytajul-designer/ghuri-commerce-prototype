@@ -34,7 +34,7 @@ type FieldProps = {
 };
 
 const control =
-  "flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg border border-foreground/50 bg-surface-inset px-3 text-left text-sm text-foreground shadow-xs outline-none transition-[background-color,border-color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:border-foreground/75 hover:bg-foreground/[0.03] focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 data-[state=open]:border-ring disabled:opacity-40 aria-invalid:border-negative data-[placeholder]:text-muted-foreground";
+  "flex h-9 w-full cursor-pointer items-center gap-2 rounded-full bg-foreground/[0.06] px-3.5 text-left text-sm text-foreground outline-none transition-[background-color] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-foreground/[0.1] focus-visible:bg-foreground/[0.1] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[state=open]:bg-foreground/[0.1] disabled:opacity-40 aria-invalid:bg-negative/10 data-[placeholder]:text-muted-foreground";
 const surface =
   "z-50 rounded-2xl bg-surface-inset p-1 text-foreground shadow-[0_12px_32px_-12px_rgb(0_0_0/0.28)] outline-none dark:bg-surface-raised dark:shadow-[0_16px_40px_-12px_rgb(0_0_0/0.7)]";
 const row =
@@ -170,7 +170,7 @@ export function Select({
               <SelectPrimitive.Value placeholder={placeholder} />
             </span>
             <SelectPrimitive.Icon>
-              <CaretDown aria-hidden="true" className="size-4 text-muted-foreground" />
+              <CaretDown weight="bold" aria-hidden="true" className="size-3.5 text-muted-foreground" />
             </SelectPrimitive.Icon>
           </SelectPrimitive.Trigger>
           <SelectPrimitive.Portal>
@@ -343,9 +343,9 @@ export function Combobox({
                   className="absolute top-1/2 right-3.5 -translate-y-1/2"
                 />
               ) : (
-                <CaretDown
+                <CaretDown weight="bold"
                   aria-hidden="true"
-                  className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground"
+                  className="pointer-events-none absolute top-1/2 right-3.5 size-3.5 -translate-y-1/2 text-muted-foreground"
                 />
               )}
             </div>
