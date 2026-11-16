@@ -57,7 +57,7 @@ export function OrdersListPage({ initialStage = "confirm" }: { initialStage?: Or
         </Tabs>
 
         <div className="flex flex-wrap items-center gap-2">
-          <InputGroup className="w-full sm:max-w-80">
+          <InputGroup className="w-full bg-card sm:max-w-80">
             <InputGroupAddon><SearchIcon /></InputGroupAddon>
             <InputGroupInput aria-label="Search orders" placeholder="Search name, phone or order #" value={query} onChange={(e) => setQuery(e.target.value)} />
           </InputGroup>

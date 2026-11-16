@@ -68,7 +68,7 @@ export function ProductsPage() {
             </TabsList>
           </div>
         </Tabs>
-        <InputGroup className="w-full sm:max-w-80">
+        <InputGroup className="w-full bg-card sm:max-w-80">
           <InputGroupAddon><SearchIcon /></InputGroupAddon>
           <InputGroupInput aria-label="Search products" placeholder="Search products" value={q} onChange={(e) => setQ(e.target.value)} />
         </InputGroup>

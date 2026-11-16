@@ -52,7 +52,7 @@ export function CustomersPage() {
               <TabsTrigger value="risky">Often return<span className="text-xs text-muted-foreground tabular-nums">{customers.filter(isRisky).length}</span></TabsTrigger>
             </TabsList>
           </Tabs>
-          <InputGroup className="w-full sm:max-w-80">
+          <InputGroup className="w-full bg-card sm:max-w-80">
             <InputGroupAddon><SearchIcon /></InputGroupAddon>
             <InputGroupInput aria-label="Search customers" placeholder="Search name or phone" value={q} onChange={(e) => setQ(e.target.value)} />
           </InputGroup>

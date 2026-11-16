@@ -25,7 +25,7 @@ export function SettingsLayout({ active, title, description, actions, children }
               <li key={n.key}>
                 <a href={`#${n.key}`} aria-current={active === n.key ? "page" : undefined}
                   className={cn("flex h-10 items-center rounded-md px-4 text-sm font-medium whitespace-nowrap transition-colors hover:bg-muted lg:h-8 lg:px-2",
-                    active === n.key ? "bg-muted text-foreground" : "text-muted-foreground")}>
+                    active === n.key ? "bg-card text-foreground ring-1 ring-border" : "text-muted-foreground")}>
                   {n.label}
                 </a>
               </li>
