@@ -1,13 +1,14 @@
 import { useState } from "react"
 import { toast } from "sonner"
-import { CheckCircle2Icon, CopyIcon, ExternalLinkIcon, InfoIcon, PlusIcon, SparklesIcon, TrashIcon, TruckIcon } from "lucide-react"
+import { CheckCircle2Icon, CopyIcon, InfoIcon, PlusIcon, SparklesIcon, TrashIcon, TruckIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -102,7 +103,7 @@ export function GeneralSettingsPage() {
         <CardContent>
           <Field>
             <FieldLabel htmlFor="spolicy" className="sr-only">Return and exchange policy</FieldLabel>
-            <Textarea id="spolicy" rows={3} value={form.returnPolicy} onChange={f("returnPolicy")} placeholder="e.g. Exchange within 3 days if the size does not fit." />
+            <Textarea id="spolicy" rows={3} value={form.returnPolicy} onChange={f("returnPolicy")} placeholder="Exchange within 3 days if the size does not fit." />
           </Field>
         </CardContent>
       </Card>
@@ -128,7 +129,14 @@ export function ShippingSettingsPage() {
   const [zones, setZones] = useState(state.zones)
   const [free, setFree] = useState(state.freeDeliveryOver ? String(state.freeDeliveryOver) : "")
   const [freeOn, setFreeOn] = useState(state.freeDeliveryOver !== null)
-  const dirty = JSON.stringify(zones) !== JSON.stringify(state.zones) || (freeOn ? Number(free) || null : null) !== state.freeDeliveryOver
+  const [fees, setFees] = useState<Record<string, string>>(() => Object.fromEntries(state.zones.map((z) => [z.id, String(z.fee)])))
+  const [tried, setTried] = useState(false)
+  const feeText = (z: Zone) => fees[z.id] ?? String(z.fee)
+  const feeBad = (z: Zone) => { const n = parseAmount(feeText(z)); return n === null || Number.isNaN(n) }
+  const freeN = parseAmount(free)
+  const freeBad = freeOn && (freeN === null || Number.isNaN(freeN) || freeN <= 0)
+  const zonesOut = zones.map((z) => ({ ...z, fee: feeBad(z) ? z.fee : (parseAmount(feeText(z)) as number) }))
+  const dirty = JSON.stringify(zonesOut) !== JSON.stringify(state.zones) || zones.some((z) => feeText(z) !== String(state.zones.find((x) => x.id === z.id)?.fee ?? "")) || (freeOn ? (freeBad ? -1 : freeN) : null) !== state.freeDeliveryOver
   const setZone = (id: string, patch: Partial<Zone>) => setZones(zones.map((z) => (z.id === id ? { ...z, ...patch } : z)))
   return (
     <SettingsLayout active="settings-shipping" title="Shipping" description="Delivery charges shoppers pay. They see the charge as soon as they pick a district.">
@@ -146,7 +154,7 @@ export function ShippingSettingsPage() {
             </Alert>
           </CardContent>
           <CardFooter className="gap-2">
-            <Button onClick={() => setZones(PRESET)}>Use Inside / Outside Dhaka</Button>
+            <Button onClick={() => { setZones(PRESET); setFees(Object.fromEntries(PRESET.map((z) => [z.id, String(z.fee)]))) }}>Use Inside / Outside Dhaka</Button>
           </CardFooter>
         </Card>
       ) : (
@@ -159,7 +167,12 @@ export function ShippingSettingsPage() {
                 {zones.map((z) => (
                   <TableRow key={z.id}>
                     <TableCell className="font-medium">{z.name}<div className="text-xs font-normal text-muted-foreground">{z.districts === "dhaka" ? "Dhaka district" : "All other districts"}</div></TableCell>
-                    <TableCell><MoneyInput className="h-8" aria-label={`Charge for ${z.name}`} value={String(z.fee)} onChange={(e) => setZone(z.id, { fee: parseAmount(e.target.value) || 0 })} /></TableCell>
+                    <TableCell>
+                      <Field data-invalid={(tried && feeBad(z)) || undefined}>
+                        <MoneyInput className="h-8" aria-label={`Charge for ${z.name}`} value={feeText(z)} onChange={(e) => setFees({ ...fees, [z.id]: e.target.value })} aria-invalid={(tried && feeBad(z)) || undefined} aria-describedby={tried && feeBad(z) ? `fee-${z.id}-error` : undefined} />
+                        {tried && feeBad(z) && <FieldError id={`fee-${z.id}-error`}>Enter a charge in taka, like 80. Use 0 for free.</FieldError>}
+                      </Field>
+                    </TableCell>
                     <TableCell><Input className="h-8" aria-label={`Delivery time for ${z.name}`} value={z.eta} onChange={(e) => setZone(z.id, { eta: e.target.value })} /></TableCell>
                   </TableRow>
                 ))}
@@ -176,15 +189,20 @@ export function ShippingSettingsPage() {
         </CardHeader>
         {freeOn && (
           <CardContent>
-            <Field className="sm:max-w-60">
+            <Field className="sm:max-w-60" data-invalid={(tried && freeBad) || undefined}>
               <FieldLabel htmlFor="free">Order total over</FieldLabel>
-              <MoneyInput id="free" value={free} onChange={(e) => setFree(e.target.value)} placeholder="3000" />
+              <MoneyInput id="free" value={free} onChange={(e) => setFree(e.target.value)} placeholder="3000" aria-invalid={(tried && freeBad) || undefined} aria-describedby={tried && freeBad ? "free-error" : undefined} />
+              {tried && freeBad && <FieldError id="free-error">Enter an amount in taka above 0, like 3000.</FieldError>}
             </Field>
           </CardContent>
         )}
       </Card>
-      <SaveRow dirty={dirty} onReset={() => { setZones(state.zones); setFree(state.freeDeliveryOver ? String(state.freeDeliveryOver) : ""); setFreeOn(state.freeDeliveryOver !== null) }}
-        onSave={() => { set((s) => ({ ...s, zones, freeDeliveryOver: freeOn ? parseAmount(free) || null : null })); toast.success("Delivery charges saved") }} />
+      <SaveRow dirty={dirty} onReset={() => { setTried(false); setZones(state.zones); setFees(Object.fromEntries(state.zones.map((z) => [z.id, String(z.fee)]))); setFree(state.freeDeliveryOver ? String(state.freeDeliveryOver) : ""); setFreeOn(state.freeDeliveryOver !== null) }}
+        onSave={() => {
+          setTried(true)
+          if (zones.some(feeBad) || freeBad) { toast.error("Fix the highlighted amounts to save."); return }
+          set((s) => ({ ...s, zones: zonesOut, freeDeliveryOver: freeOn ? freeN : null })); setTried(false); toast.success("Delivery charges saved")
+        }} />
     </SettingsLayout>
   )
 }
@@ -196,6 +214,7 @@ export function PaymentsSettingsPage() {
   const [p, setP] = useState<Payments>(state.payments)
   const [tried, setTried] = useState(false)
   const dirty = JSON.stringify(p) !== JSON.stringify(state.payments)
+  const noWallet = p.cod && p.advanceDelivery && !p.bkash.enabled && !p.nagad.enabled
   const bad = (w: "bkash" | "nagad") => p[w].enabled && !isValidBdPhone(cleanPhone(p[w].number))
   const wallet = (w: "bkash" | "nagad", label: string) => (
     <Card>
@@ -210,8 +229,8 @@ export function PaymentsSettingsPage() {
             <div className="grid gap-6 sm:grid-cols-2">
               <Field data-invalid={(tried && bad(w)) || undefined}>
                 <FieldLabel htmlFor={`${w}-no`}>{label} number</FieldLabel>
-                <Input id={`${w}-no`} type="tel" inputMode="tel" placeholder="01XXXXXXXXX" value={p[w].number} onChange={(e) => setP({ ...p, [w]: { ...p[w], number: e.target.value } })} aria-invalid={(tried && bad(w)) || undefined} />
-                {tried && bad(w) && <FieldError>Enter an 11-digit number starting with 01.</FieldError>}
+                <Input id={`${w}-no`} type="tel" inputMode="tel" placeholder="01XXXXXXXXX" value={p[w].number} onChange={(e) => setP({ ...p, [w]: { ...p[w], number: e.target.value } })} aria-invalid={(tried && bad(w)) || undefined} aria-describedby={tried && bad(w) ? `${w}-no-error` : undefined} />
+                {tried && bad(w) && <FieldError id={`${w}-no-error`}>Enter an 11-digit number starting with 01.</FieldError>}
               </Field>
               <Field>
                 <FieldLabel htmlFor={`${w}-type`}>Account type</FieldLabel>
@@ -240,8 +259,8 @@ export function PaymentsSettingsPage() {
               { value: "none", title: "Full cash on delivery", description: "Easiest for shoppers. More fake orders." },
               { value: "advance", title: "Delivery charge in advance", description: "Shopper pays only the delivery charge by bKash or Nagad first. Fewer fake orders." },
             ]} />
-            {p.advanceDelivery && !p.bkash.enabled && !p.nagad.enabled && (
-              <Alert><InfoIcon /><AlertDescription>Turn on bKash or Nagad below so shoppers can pay the delivery charge.</AlertDescription></Alert>
+            {noWallet && (
+              <Alert variant={tried ? "destructive" : "default"} className="mt-4" id="advance-error"><InfoIcon /><AlertDescription>{tried ? "You can't save yet. " : ""}Turn on bKash or Nagad below so shoppers can pay the delivery charge, or choose full cash on delivery.</AlertDescription></Alert>
             )}
           </CardContent>
         )}
@@ -259,6 +278,7 @@ export function PaymentsSettingsPage() {
         setTried(true)
         if (bad("bkash") || bad("nagad")) { toast.error("Fix the wallet numbers to save."); return }
         if (!p.cod && !p.bkash.enabled && !p.nagad.enabled) { toast.error("Keep at least one way to pay."); return }
+        if (noWallet) { toast.error("Turn on bKash or Nagad for the advance delivery charge."); document.getElementById("bkash-on")?.focus(); return }
         set((s) => ({ ...s, payments: { ...p, bkash: { ...p.bkash, number: cleanPhone(p.bkash.number) }, nagad: { ...p.nagad, number: cleanPhone(p.nagad.number) } } }))
         toast.success("Payment settings saved")
       }} />
@@ -276,7 +296,11 @@ export function TeamSettingsPage() {
   const [contact, setContact] = useState("")
   const [role, setRole] = useState<Member["role"]>("Staff")
   const [tried, setTried] = useState(false)
-  const valid = /\S+@\S+\.\S+/.test(contact) || isValidBdPhone(cleanPhone(contact))
+  const [removing, setRemoving] = useState<Member | null>(null)
+  const normal = contact.includes("@") ? contact.trim().toLowerCase() : cleanPhone(contact)
+  const format = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact.trim()) || isValidBdPhone(cleanPhone(contact))
+  const dup = format && state.team.some((m) => m.contact.toLowerCase() === normal)
+  const valid = format && !dup
   return (
     <SettingsLayout active="settings-team" title="Team" description="People who help run the store. Each sees only what their role allows."
       actions={<Button onClick={() => { setOpen(true); setTried(false); setContact("") }}><PlusIcon />Invite</Button>}>
@@ -290,7 +314,7 @@ export function TeamSettingsPage() {
                 <TableRow key={m.id}>
                   <TableCell><div className="font-medium">{m.name}</div><div className="text-xs text-muted-foreground">{m.contact}</div></TableCell>
                   <TableCell><div className="flex items-center gap-2">{m.role}{m.pending && <Badge variant="warning">Invited</Badge>}</div></TableCell>
-                  <TableCell>{m.role !== "Owner" && <Button variant="ghost" size="icon-sm" aria-label={`Remove ${m.name}`} onClick={() => { set((s) => ({ ...s, team: s.team.filter((x) => x.id !== m.id) })); toast(`${m.name} removed`) }}><TrashIcon /></Button>}</TableCell>
+                  <TableCell>{m.role !== "Owner" && <Button variant="ghost" size="icon-sm" aria-label={`Remove ${m.name}`} onClick={() => setRemoving(m)}><TrashIcon /></Button>}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -301,7 +325,7 @@ export function TeamSettingsPage() {
         <CardHeader><CardTitle>What each role can do</CardTitle></CardHeader>
         <CardContent>
           <dl className="flex flex-col gap-4 text-sm">
-            {(Object.keys(ROLE_HELP) as Member["role"][]).map((r) => <div key={r} className="grid gap-1 sm:grid-cols-[96px_1fr] sm:gap-4"><dt className="font-medium">{r}</dt><dd className="text-muted-foreground">{ROLE_HELP[r]}</dd></div>)}
+            {(Object.keys(ROLE_HELP) as Member["role"][]).map((r) => <div key={r} className="grid gap-2 sm:grid-cols-[96px_1fr] sm:gap-4"><dt className="font-medium">{r}</dt><dd className="text-muted-foreground">{ROLE_HELP[r]}</dd></div>)}
           </dl>
         </CardContent>
       </Card>
@@ -311,25 +335,37 @@ export function TeamSettingsPage() {
           <FieldGroup>
             <Field data-invalid={(tried && !valid) || undefined}>
               <FieldLabel htmlFor="inv">Phone or email</FieldLabel>
-              <Input id="inv" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="01XXXXXXXXX" aria-invalid={(tried && !valid) || undefined} />
-              {tried && !valid && <FieldError>Enter a mobile number or an email address.</FieldError>}
+              <Input id="inv" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="01XXXXXXXXX" aria-invalid={(tried && !valid) || undefined} aria-describedby={tried && !valid ? "inv-error" : undefined} />
+              {tried && !valid && <FieldError id="inv-error">{dup ? "This person is already on your team or invited. Enter a different number or email." : "Enter an 11-digit mobile number starting with 01, or an email address."}</FieldError>}
             </Field>
-            <Field>
-              <FieldLabel>Role</FieldLabel>
-              <ChoiceCardGroup name="role" aria-label="Role" value={role} onValueChange={setRole} choices={(["Staff", "Admin"] as const).map((r) => ({ value: r, title: r, description: ROLE_HELP[r] }))} />
-            </Field>
+            <FieldSet>
+              <FieldLegend variant="label">Role</FieldLegend>
+              <ChoiceCardGroup name="role" value={role} onValueChange={setRole} choices={(["Staff", "Admin"] as const).map((r) => ({ value: r, title: r, description: ROLE_HELP[r] }))} />
+            </FieldSet>
           </FieldGroup>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <Button onClick={() => {
               setTried(true)
               if (!valid) return
-              set((s) => ({ ...s, team: [...s.team, { id: uid(), name: contact.includes("@") ? contact.split("@")[0] : cleanPhone(contact), contact: contact.includes("@") ? contact : cleanPhone(contact), role, pending: true }] }))
+              set((s) => ({ ...s, team: [...s.team, { id: uid(), name: contact.includes("@") ? normal.split("@")[0] : normal, contact: normal, role, pending: true }] }))
               setOpen(false); toast.success("Invite sent")
             }}>Send invite</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AlertDialog open={!!removing} onOpenChange={(o) => { if (!o) setRemoving(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {removing?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>{removing?.pending ? "Their invite link stops working." : "They lose access to this store right away."} You can invite them again later.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={() => { if (!removing) return; const m = removing; set((s) => ({ ...s, team: s.team.filter((x) => x.id !== m.id) })); toast(`${m.name} removed`); setRemoving(null) }}>Remove</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SettingsLayout>
   )
 }
@@ -351,8 +387,8 @@ export function DomainSettingsPage() {
           <CardContent>
             <Field data-invalid={(tried && !valid) || undefined} className="sm:max-w-sm">
               <FieldLabel htmlFor="dom">Domain</FieldLabel>
-              <Input id="dom" placeholder="www.yourbrand.com" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={(tried && !valid) || undefined} />
-              {tried && !valid ? <FieldError>Enter a domain like www.yourbrand.com</FieldError> : <FieldDescription>Use the www version.</FieldDescription>}
+              <Input id="dom" placeholder="www.yourbrand.com" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={(tried && !valid) || undefined} aria-describedby={tried && !valid ? "dom-error" : "dom-help"} />
+              {tried && !valid ? <FieldError id="dom-error">Enter a domain like www.yourbrand.com</FieldError> : <FieldDescription id="dom-help">Use the www version.</FieldDescription>}
             </Field>
           </CardContent>
           <CardFooter><Button onClick={() => { setTried(true); if (valid) set((s) => ({ ...s, domain: { name: name.trim().replace(/^https?:\/\//, "").toLowerCase(), status: "pending" } })) }}>Continue</Button></CardFooter>
@@ -442,12 +478,12 @@ export function AiSettingsPage() {
             </CardContent>
             <CardFooter className="gap-2">
               {on ? <Button variant="outline" onClick={() => { set((s) => ({ ...s, aiConnected: s.aiConnected.filter((x) => x !== a.key) })); toast(`${a.name} disconnected`) }}>Disconnect</Button>
-                : <Button variant="outline" onClick={() => { set((s) => ({ ...s, aiConnected: [...s.aiConnected, a.key] })); toast.success(`${a.name} connected (prototype)`) }}><ExternalLinkIcon />Connect {a.name}</Button>}
+                : <Button variant="outline" onClick={() => { set((s) => ({ ...s, aiConnected: [...s.aiConnected, a.key] })); toast.success(`${a.name} connected (prototype)`) }}>Connect {a.name}</Button>}
             </CardFooter>
           </Card>
         )
       })}
-      <p className="text-sm text-muted-foreground">Using Claude Code or Codex? The developer setup is in the help centre.</p>
+      <p className="text-sm text-muted-foreground">Using Claude Code or Codex? The developer setup is in the <a href="https://help.ghuricommerce.com/developers" target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-foreground">help centre</a>.</p>
     </SettingsLayout>
   )
 }

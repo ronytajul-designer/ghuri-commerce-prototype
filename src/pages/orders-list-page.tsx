@@ -115,7 +115,7 @@ export function OrdersListPage({ initialStage = "confirm" }: { initialStage?: Or
                       </TableCell>
                       <TableCell><PaymentBadge order={o} /></TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-2">
                           <RiskBadge order={o} />
                           {o.noAnswer > 0 && <Badge variant="warning">No answer ×{o.noAnswer}</Badge>}
                           {o.consignment && <Badge variant="info">{o.courier} {o.consignment}</Badge>}
@@ -142,7 +142,7 @@ export function OrdersListPage({ initialStage = "confirm" }: { initialStage?: Or
                         <span>{o.district}</span>
                         <span>{timeAgo(o.createdAt)}</span>
                       </div>
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-2">
                         <PaymentBadge order={o} />
                         <RiskBadge order={o} />
                         {o.noAnswer > 0 && <Badge variant="warning">No answer ×{o.noAnswer}</Badge>}
@@ -161,7 +161,7 @@ export function OrdersListPage({ initialStage = "confirm" }: { initialStage?: Or
         open={booking}
         orders={orders.filter((o) => checked.has(o.id))}
         onOpenChange={setBooking}
-        onSubmit={(courier, ids) => { onBook(ids, courier); setBooking(false); setChecked(new Set()) }}
+        onSubmit={(courier, ids, opts) => { onBook(ids, courier, opts); setBooking(false); setChecked(new Set()) }}
       />
     </Page>
   )

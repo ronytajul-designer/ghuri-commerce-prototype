@@ -24,7 +24,7 @@ export function PageHeader({ title, description, badge, backHref, backLabel = "B
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="flex min-w-0 items-start gap-2">
         {backHref && (
-          <Button variant="ghost" size="icon-sm" className="mt-0.5" asChild>
+          <Button variant="ghost" size="icon-sm" asChild>
             <a href={backHref} aria-label={backLabel}><ArrowLeftIcon /></a>
           </Button>
         )}

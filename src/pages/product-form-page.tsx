@@ -66,7 +66,7 @@ export function ProductFormPage({ id }: { id?: string }) {
   const [picked, setPicked] = useState<string[]>(existing?.collectionIds ?? [])
   const [newCollection, setNewCollection] = useState("")
   const [weight, setWeight] = useState(String(existing?.weight ?? 500))
-  const [slugEdit, setSlugEdit] = useState<string | null>(existing ? existing.slug : null)
+  const [slugEdit, setSlugEdit] = useState<string | null>(null)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [submitted, setSubmitted] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -93,9 +93,14 @@ export function ProductFormPage({ id }: { id?: string }) {
     compare: compareN === null ? null : Number.isNaN(compareN) ? "Use numbers only." : priceN && compareN <= priceN ? "Must be higher than the selling price to show a discount." : null,
     stock: hasVariants || stockN === null ? null : Number.isNaN(stockN) || !Number.isInteger(stockN) ? "Use a whole number, for example 10." : null,
   }
+  const variantStockErr = (k: string) => { const n = parseAmount(variantStock[k] ?? ""); return n !== null && (Number.isNaN(n) || !Number.isInteger(n)) ? "Use a whole number, 0 or more." : null }
+  const variantPriceErr = (k: string) => { const n = parseAmount(variantPrice[k] ?? ""); return n === null ? null : Number.isNaN(n) ? "Use numbers only, like 1200." : n === 0 ? "Must be more than ৳0, or leave empty." : null }
+  const weightN = parseAmount(weight)
+  const weightErr = weightN === null ? "Enter the weight in grams, like 500." : Number.isNaN(weightN) || !Number.isInteger(weightN) || weightN === 0 ? "Use a whole number of grams above 0, like 500." : null
   const discount = priceN && compareN && !errors.compare ? Math.round((1 - priceN / compareN) * 100) : null
 
   const autoSlug = useMemo(() => slugify(title, slugSeed.current), [title])
+  const currentSlug = slugEdit ?? existing?.slug ?? autoSlug
 
   const variants = useMemo(() => {
     const s = sizes.length ? sizes : [undefined]
@@ -125,12 +130,19 @@ export function ProductFormPage({ id }: { id?: string }) {
   }
   const save = () => {
     setSubmitted(true)
-    if (errors.title || errors.price || errors.compare || errors.stock) { toast.error("Fix the highlighted fields to save."); return }
+    const variantBad = hasVariants ? variants.flatMap((v, i) => [variantPriceErr(v.key) ? `vp-${i}` : null, variantStockErr(v.key) ? `vs-${i}` : null]).filter(Boolean) as string[] : []
+    const firstBad = [errors.title && "title", errors.price && "price", errors.compare && "compare", errors.stock && "stock", ...variantBad, weightErr && "weight"].find(Boolean)
+    if (firstBad) {
+      toast.error("Fix the highlighted fields to save.")
+      const el = document.getElementById(firstBad as string)
+      el?.scrollIntoView({ block: "center" }); el?.focus({ preventScroll: true })
+      return
+    }
     if (status === "active" && !ready) { toast.error("Finish the checklist to go live, or save as Draft."); return }
     const saved: Product = {
       id: existing?.id ?? uid(),
       title: title.trim(),
-      slug: slugEdit ?? autoSlug,
+      slug: currentSlug,
       description: desc,
       photos: photos.map((p) => p.url),
       tint: existing?.tint ?? "oklch(0.92 0.03 60)",
@@ -141,7 +153,7 @@ export function ProductFormPage({ id }: { id?: string }) {
       colours: hasVariants ? colours : [],
       variants: hasVariants ? variants.map((v) => ({ key: v.key, label: v.label, stock: parseAmount(variantStock[v.key] ?? "") || 0, price: parseAmount(variantPrice[v.key] ?? "") || undefined })) : [],
       stock: hasVariants ? 0 : (stockN as number) || 0,
-      weight: Number(weight) || 0,
+      weight: weightN as number,
       collectionIds: picked,
       sold: existing?.sold ?? 0,
     }
@@ -223,10 +235,10 @@ export function ProductFormPage({ id }: { id?: string }) {
               <FieldGroup>
                 <Field data-invalid={(shown("title") && !!errors.title) || undefined}>
                   <FieldLabel htmlFor="title">Name</FieldLabel>
-                  <Input id="title" value={title} onChange={(e) => edit(setTitle)(e.target.value)} onBlur={blur("title")} aria-invalid={(shown("title") && !!errors.title) || undefined} />
-                  {shown("title") && errors.title ? <FieldError>{errors.title}</FieldError> : (
-                    <FieldDescription>
-                      {autoSlug ? <>Web address: <span className="text-foreground">/products/{slugEdit ?? autoSlug}</span>{slugEdit === null && <> · <button type="button" className="underline underline-offset-4" onClick={() => setSlugEdit(autoSlug)}>Edit</button></>}</> : "Bangla or English. Example: Cotton Panjabi."}
+                  <Input id="title" value={title} onChange={(e) => edit(setTitle)(e.target.value)} onBlur={blur("title")} aria-invalid={(shown("title") && !!errors.title) || undefined} aria-describedby={shown("title") && errors.title ? "title-error" : "title-help"} />
+                  {shown("title") && errors.title ? <FieldError id="title-error">{errors.title}</FieldError> : (
+                    <FieldDescription id="title-help">
+                      {currentSlug ? <>Web address: <span className="text-foreground">/products/{currentSlug}</span>{slugEdit === null && <> · <button type="button" className="underline underline-offset-4" onClick={() => setSlugEdit(currentSlug)}>Edit</button></>}</> : "Bangla or English. Example: Cotton Panjabi."}
                     </FieldDescription>
                   )}
                 </Field>
@@ -255,13 +267,13 @@ export function ProductFormPage({ id }: { id?: string }) {
                 <div className="grid gap-6 sm:grid-cols-2">
                   <Field data-invalid={(shown("price") && !!errors.price) || undefined}>
                     <FieldLabel htmlFor="price">Selling price</FieldLabel>
-                    <MoneyInput id="price" value={price} onChange={(e) => edit(setPrice)(e.target.value)} onBlur={blur("price")} aria-invalid={(shown("price") && !!errors.price) || undefined} />
-                    {shown("price") && errors.price && <FieldError>{errors.price}</FieldError>}
+                    <MoneyInput id="price" value={price} onChange={(e) => edit(setPrice)(e.target.value)} onBlur={blur("price")} aria-invalid={(shown("price") && !!errors.price) || undefined} aria-describedby={shown("price") && errors.price ? "price-error" : undefined} />
+                    {shown("price") && errors.price && <FieldError id="price-error">{errors.price}</FieldError>}
                   </Field>
                   <Field data-invalid={(shown("compare") && !!errors.compare) || undefined}>
                     <FieldLabel htmlFor="compare">Regular price</FieldLabel>
-                    <MoneyInput id="compare" value={compare} onChange={(e) => edit(setCompare)(e.target.value)} onBlur={blur("compare")} aria-invalid={(shown("compare") && !!errors.compare) || undefined} />
-                    {shown("compare") && errors.compare ? <FieldError>{errors.compare}</FieldError> : <FieldDescription>Optional. Shown crossed out.</FieldDescription>}
+                    <MoneyInput id="compare" value={compare} onChange={(e) => edit(setCompare)(e.target.value)} onBlur={blur("compare")} aria-invalid={(shown("compare") && !!errors.compare) || undefined} aria-describedby={shown("compare") && errors.compare ? "compare-error" : "compare-help"} />
+                    {shown("compare") && errors.compare ? <FieldError id="compare-error">{errors.compare}</FieldError> : <FieldDescription id="compare-help">Optional. Shown crossed out.</FieldDescription>}
                   </Field>
                 </div>
                 {priceN ? (
@@ -285,8 +297,8 @@ export function ProductFormPage({ id }: { id?: string }) {
               {!hasVariants ? (
                 <Field data-invalid={(shown("stock") && !!errors.stock) || undefined} className="sm:max-w-60">
                   <FieldLabel htmlFor="stock">Stock</FieldLabel>
-                  <Input id="stock" inputMode="numeric" value={stock} onChange={(e) => edit(setStock)(e.target.value)} onBlur={blur("stock")} aria-invalid={(shown("stock") && !!errors.stock) || undefined} />
-                  {shown("stock") && errors.stock ? <FieldError>{errors.stock}</FieldError> : <FieldDescription>How many you can sell now.</FieldDescription>}
+                  <Input id="stock" inputMode="numeric" value={stock} onChange={(e) => edit(setStock)(e.target.value)} onBlur={blur("stock")} aria-invalid={(shown("stock") && !!errors.stock) || undefined} aria-describedby={shown("stock") && errors.stock ? "stock-error" : "stock-help"} />
+                  {shown("stock") && errors.stock ? <FieldError id="stock-error">{errors.stock}</FieldError> : <FieldDescription id="stock-help">How many you can sell now.</FieldDescription>}
                 </Field>
               ) : (
                 <FieldGroup>
@@ -301,15 +313,15 @@ export function ProductFormPage({ id }: { id?: string }) {
                     {colours.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {colours.map((c) => (
-                          <Badge key={c} variant="secondary" className="gap-1 pr-1">
+                          <Badge key={c} variant="secondary" className="gap-1 pr-0">
                             {c}
-                            <button type="button" aria-label={`Remove ${c}`} className="rounded-sm p-0.5 hover:bg-foreground/10" onClick={() => { setColours(colours.filter((x) => x !== c)); setDirty(true) }}><XIcon className="size-3" /></button>
+                            <button type="button" aria-label={`Remove ${c}`} className="inline-flex size-6 items-center justify-center rounded-sm hover:bg-foreground/10" onClick={() => { setColours(colours.filter((x) => x !== c)); setDirty(true) }}><XIcon className="size-3" aria-hidden="true" /></button>
                           </Badge>
                         ))}
                       </div>
                     )}
                     <div className="flex gap-2 sm:max-w-sm">
-                      <Input id="colour" placeholder="e.g. Maroon" value={colourDraft} onChange={(e) => setColourDraft(e.target.value)}
+                      <Input id="colour" placeholder="Maroon" value={colourDraft} onChange={(e) => setColourDraft(e.target.value)}
                         onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addColour() } }} />
                       <Button type="button" variant="outline" onClick={addColour}>Add</Button>
                     </div>
@@ -328,13 +340,27 @@ export function ProductFormPage({ id }: { id?: string }) {
                         <Table>
                           <TableHeader><TableRow><TableHead>Option</TableHead><TableHead className="w-36">Price</TableHead><TableHead className="w-24">Stock</TableHead></TableRow></TableHeader>
                           <TableBody>
-                            {variants.map((v) => (
-                              <TableRow key={v.key}>
-                                <TableCell className="font-medium">{v.label}</TableCell>
-                                <TableCell><MoneyInput className="h-8" aria-label={`Price for ${v.label}`} placeholder={priceN ? String(priceN) : "0"} value={variantPrice[v.key] ?? ""} onChange={(e) => { setVariantPrice({ ...variantPrice, [v.key]: e.target.value }); setDirty(true) }} /></TableCell>
-                                <TableCell><Input className="h-8" aria-label={`Stock for ${v.label}`} inputMode="numeric" placeholder="0" value={variantStock[v.key] ?? ""} onChange={(e) => { setVariantStock({ ...variantStock, [v.key]: e.target.value }); setDirty(true) }} /></TableCell>
-                              </TableRow>
-                            ))}
+                            {variants.map((v, i) => {
+                              const pe = submitted ? variantPriceErr(v.key) : null
+                              const se = submitted ? variantStockErr(v.key) : null
+                              return (
+                                <TableRow key={v.key}>
+                                  <TableCell className="font-medium">{v.label}</TableCell>
+                                  <TableCell className="align-top">
+                                    <Field data-invalid={!!pe || undefined}>
+                                      <MoneyInput id={`vp-${i}`} className="h-8" aria-label={`Price for ${v.label}`} placeholder={priceN ? String(priceN) : "0"} value={variantPrice[v.key] ?? ""} onChange={(e) => { setVariantPrice({ ...variantPrice, [v.key]: e.target.value }); setDirty(true) }} aria-invalid={!!pe || undefined} aria-describedby={pe ? `vp-${i}-error` : undefined} />
+                                      {pe && <FieldError id={`vp-${i}-error`} className="whitespace-normal">{pe}</FieldError>}
+                                    </Field>
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    <Field data-invalid={!!se || undefined}>
+                                      <Input id={`vs-${i}`} className="h-8" aria-label={`Stock for ${v.label}`} inputMode="numeric" placeholder="0" value={variantStock[v.key] ?? ""} onChange={(e) => { setVariantStock({ ...variantStock, [v.key]: e.target.value }); setDirty(true) }} aria-invalid={!!se || undefined} aria-describedby={se ? `vs-${i}-error` : undefined} />
+                                      {se && <FieldError id={`vs-${i}-error`} className="whitespace-normal">{se}</FieldError>}
+                                    </Field>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            })}
                           </TableBody>
                         </Table>
                       </div>
@@ -372,13 +398,13 @@ export function ProductFormPage({ id }: { id?: string }) {
           <Card>
             <CardHeader><CardTitle>Shipping</CardTitle></CardHeader>
             <CardContent>
-              <Field>
+              <Field data-invalid={(submitted && !!weightErr) || undefined}>
                 <FieldLabel htmlFor="weight">Weight with packaging</FieldLabel>
                 <InputGroup>
-                  <InputGroupInput id="weight" inputMode="numeric" value={weight} onChange={(e) => edit(setWeight)(e.target.value)} />
+                  <InputGroupInput id="weight" inputMode="numeric" value={weight} onChange={(e) => edit(setWeight)(e.target.value)} aria-invalid={(submitted && !!weightErr) || undefined} aria-describedby={submitted && weightErr ? "weight-error" : "weight-help"} />
                   <InputGroupAddon align="inline-end"><InputGroupText>g</InputGroupText></InputGroupAddon>
                 </InputGroup>
-                <FieldDescription>Couriers charge more above 1 kg.</FieldDescription>
+                {submitted && weightErr ? <FieldError id="weight-error">{weightErr}</FieldError> : <FieldDescription id="weight-help">Couriers charge more above 1 kg.</FieldDescription>}
               </Field>
             </CardContent>
           </Card>

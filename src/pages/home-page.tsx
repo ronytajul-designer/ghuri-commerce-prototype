@@ -348,7 +348,7 @@ function NewStoreHome() {
                     const isNext = next?.key === s.key
                     return (
                       <li key={s.key} className={cn("flex flex-wrap items-start gap-4 p-4", isNext && "bg-muted/50")}>
-                        {s.done ? <CheckCircle2Icon className="mt-0.5 size-5 text-success" aria-hidden="true" /> : <CircleIcon className="mt-0.5 size-5 text-muted-foreground" aria-hidden="true" />}
+                        {s.done ? <CheckCircle2Icon className="size-5 shrink-0 text-success" aria-hidden="true" /> : <CircleIcon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />}
                         <div className="flex min-w-0 flex-1 flex-col gap-1">
                           <span className={cn("text-sm font-medium", s.done && "text-muted-foreground line-through")}>{s.title}<span className="sr-only">{s.done ? ", done" : ""}</span></span>
                           {!s.done && <span className="text-sm text-muted-foreground">{s.description}</span>}

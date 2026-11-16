@@ -155,12 +155,12 @@ export function useOrderActions() {
       })
       return { ...s, products, orders: s.orders.map((o) => (o.id === id ? { ...o, status: "cancelled", cancelReason: reason, log: [{ at: Date.now(), text: `Cancelled: ${reason}. Items returned to stock (by Tajul)` }, ...o.log] } : o)) }
     }),
-    book: (ids: number[], courier: Courier) => set((s) => ({
+    book: (ids: number[], courier: Courier, opts?: { weightKg?: number; note?: string }) => set((s) => ({
       ...s,
       orders: s.orders.map((o) => {
         if (!ids.includes(o.id)) return o
         const cid = `${courier.slice(0, 2).toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`
-        return { ...o, status: "transit", courier, consignment: cid, log: [{ at: Date.now(), text: `Booked with ${courier}, ${cid} (by Tajul)` }, ...o.log] }
+        return { ...o, status: "transit", courier, consignment: cid, weightKg: opts?.weightKg, courierNote: opts?.note || undefined, log: [{ at: Date.now(), text: `Booked with ${courier}, ${cid} (by Tajul)` }, ...o.log] }
       }),
     })),
     delivered: (id: number) => patch(id, (o) => ({ ...o, status: "delivered" }), "Marked delivered (by Tajul)"),

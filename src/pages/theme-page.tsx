@@ -75,7 +75,7 @@ export function ThemePage() {
       value: v,
       placeholder: opts.placeholder,
       "aria-invalid": err ? true : undefined,
-      "aria-describedby": `${id}-desc`,
+      "aria-describedby": err ? `${id}-desc ${id}-error` : `${id}-desc`,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setDraft({ ...draft, [k]: e.target.value }),
       onBlur: () => setTouched((t) => ({ ...t, [k]: true })),
     }
@@ -87,7 +87,7 @@ export function ThemePage() {
           <span>{opts.hint}</span>
           <span className={cn("shrink-0 tabular-nums", v.length > LIMITS[k].max && "text-destructive")} aria-live="polite">{v.length}/{LIMITS[k].max}</span>
         </FieldDescription>
-        {err && <FieldError>{err}</FieldError>}
+        {err && <FieldError id={`${id}-error`}>{err}</FieldError>}
       </Field>
     )
   }
@@ -122,7 +122,7 @@ export function ThemePage() {
               <CardDescription>A thin strip at the very top of every page. Leave it empty to hide it.</CardDescription>
             </CardHeader>
             <CardContent>
-              {text("announcement", "Announcement", { placeholder: "e.g. Free exchange within 3 days", hint: "Good for offers, delivery or exchange." })}
+              {text("announcement", "Announcement", { placeholder: "Free exchange within 3 days", hint: "Good for offers, delivery or exchange." })}
             </CardContent>
           </Card>
 
@@ -133,9 +133,9 @@ export function ThemePage() {
             </CardHeader>
             <CardContent>
               <FieldGroup>
-                {text("heroTitle", "Heading", { placeholder: "e.g. Eid collection is here", hint: "Short and clear works best." })}
-                {text("heroSubtitle", "Text", { placeholder: "e.g. Cash on delivery all over Bangladesh. Dhaka delivery in 1 to 2 days.", hint: "One or two sentences.", multiline: true })}
-                {text("heroCta", "Button text", { placeholder: "e.g. Shop now", hint: "Takes shoppers to your products." })}
+                {text("heroTitle", "Heading", { placeholder: "Eid collection is here", hint: "Short and clear works best." })}
+                {text("heroSubtitle", "Text", { placeholder: "Cash on delivery all over Bangladesh. Dhaka delivery in 1 to 2 days.", hint: "One or two sentences.", multiline: true })}
+                {text("heroCta", "Button text", { placeholder: "Shop now", hint: "Takes shoppers to your products." })}
               </FieldGroup>
             </CardContent>
           </Card>

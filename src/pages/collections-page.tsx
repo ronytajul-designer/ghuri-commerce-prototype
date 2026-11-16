@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import { FolderTreeIcon, PlusIcon, SearchIcon } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -92,6 +93,7 @@ export function CollectionFormPage({ id }: { id?: string }) {
     toast.success("Collection saved")
     window.location.hash = "collections"
   }
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const remove = () => {
     if (!existing) return
     set((s) => ({ ...s, collections: s.collections.filter((c) => c.id !== existing.id), products: s.products.map((p) => ({ ...p, collectionIds: p.collectionIds.filter((x) => x !== existing.id) })) }))
@@ -102,7 +104,7 @@ export function CollectionFormPage({ id }: { id?: string }) {
   return (
     <Page>
       <PageHeader backHref="#collections" backLabel="Back to collections" title={existing ? existing.title : "Add collection"}
-        actions={<>{existing && <Button variant="ghost" onClick={remove}>Delete</Button>}<Button onClick={save}>Save</Button></>} />
+        actions={<>{existing && <Button variant="ghost" onClick={() => setConfirmDelete(true)}>Delete</Button>}<Button onClick={save}>Save</Button></>} />
       <PageGrid>
         <PageColumn>
           <Card>
@@ -111,8 +113,8 @@ export function CollectionFormPage({ id }: { id?: string }) {
               <FieldGroup>
                 <Field data-invalid={(tried && !title.trim()) || undefined}>
                   <FieldLabel htmlFor="ctitle">Name</FieldLabel>
-                  <Input id="ctitle" value={title} onChange={(e) => setTitle(e.target.value)} aria-invalid={(tried && !title.trim()) || undefined} />
-                  {tried && !title.trim() ? <FieldError>Enter a name, for example Eid collection.</FieldError> : <FieldDescription>Shown as a tab on your store.</FieldDescription>}
+                  <Input id="ctitle" value={title} onChange={(e) => setTitle(e.target.value)} aria-invalid={(tried && !title.trim()) || undefined} aria-describedby={tried && !title.trim() ? "ctitle-error" : "ctitle-help"} />
+                  {tried && !title.trim() ? <FieldError id="ctitle-error">Enter a name, for example Eid collection.</FieldError> : <FieldDescription id="ctitle-help">Shown as a tab on your store.</FieldDescription>}
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="cdesc">Description</FieldLabel>
@@ -157,6 +159,18 @@ export function CollectionFormPage({ id }: { id?: string }) {
           </Card>
         </PageColumn>
       </PageGrid>
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {existing?.title}?</AlertDialogTitle>
+            <AlertDialogDescription>The collection is removed from your store. Its products stay in your catalogue.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep collection</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={remove}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Page>
   )
 }

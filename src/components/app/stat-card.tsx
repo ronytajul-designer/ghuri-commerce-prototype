@@ -27,7 +27,7 @@ export function StatCard({
       </CardHeader>
       <CardFooter className="flex-wrap gap-2 text-sm">
         {delta !== undefined && (
-          <span className={cn("inline-flex items-center gap-1 font-medium tabular-nums", good ? "text-success-foreground" : "text-destructive")}>
+          <span className={cn("inline-flex items-center gap-2 font-medium tabular-nums", good ? "text-success-foreground" : "text-destructive")}>
             {delta >= 0 ? <ArrowUpRightIcon className="size-4" aria-hidden="true" /> : <ArrowDownRightIcon className="size-4" aria-hidden="true" />}
             {delta > 0 ? "+" : ""}{delta}{deltaUnit}
             <span className="sr-only">{good ? ", better than before" : ", worse than before"}</span>

@@ -42,7 +42,7 @@ function identifierError(v: string) {
 }
 const normaliseIdentifier = (v: string) => (v.trim().includes("@") ? v.trim().toLowerCase() : cleanPhone(v))
 
-/** Store name to handle. Bangla-only names get "store-xxxxx" instead of an empty address. */
+/** Store name to handle. Bangla names are transliterated; anything left empty gets "store-xxxxx". */
 function handleFrom(name: string, seed: string) {
   const s = slugify(name, seed)
   const h = s === `item-${seed}` ? `store-${seed}` : s
