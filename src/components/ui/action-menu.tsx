@@ -59,7 +59,7 @@ const row =
 function Glyph({ icon: IconComponent, reserve }: { icon?: Icon; reserve?: boolean }) {
   if (IconComponent)
     return (
-      <IconComponent weight="fill" className="size-4 shrink-0 text-muted-foreground" />
+      <IconComponent className="size-4 shrink-0 text-muted-foreground" />
     );
   return reserve ? <span aria-hidden="true" className="size-4 shrink-0" /> : null;
 }
@@ -168,7 +168,6 @@ function Entry({
     >
       {item.icon ? (
         <item.icon
-          weight="fill"
           className={cn(
             "size-4 shrink-0",
             item.destructive ? "text-negative" : "text-muted-foreground",

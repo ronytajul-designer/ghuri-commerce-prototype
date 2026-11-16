@@ -94,7 +94,7 @@ export type StatusPillProps = React.ComponentProps<"span"> & {
   size?: keyof typeof sizes;
   /** Optional icon before the text. The text always stays, so tone is never the only signal. */
   icon?: Icon;
-  iconWeight?: "fill" | "bold";
+  iconWeight?: "regular" | "fill" | "bold";
 };
 
 export function StatusPill({

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import {
-  ArrowRight, Bag, CheckCircle, Circle, Package, Phone, Sparkle, Truck, ArrowUUpLeft, Storefront, ListBullets, Coins, Warning, Trophy, ChartBar,
+  ArrowRight, Bag, CheckCircle, Circle, Package, Phone, Sparkle, Truck, ArrowUUpLeft, Storefront, ListBullets, Coins, Warning, Trophy, ChartBar, CalendarBlank,
 } from "@phosphor-icons/react"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Page, PageColumn, PageGrid, PageHeader } from "@/components/app/page"
@@ -205,7 +205,7 @@ function ActiveHome() {
           : "Nothing waiting. Here’s how the store is doing."}
         actions={
           <>
-            <div className="w-40">
+            <div className="w-44">
               <TuffSelect label={<span className="sr-only">Date range</span>} value={range} onValueChange={(v) => setRange(v as Range)}
                 options={[{ value: "7", label: "Last 7 days" }, { value: "30", label: "Last 30 days" }, { value: "90", label: "Last 90 days" }]} />
             </div>
@@ -225,8 +225,8 @@ function ActiveHome() {
               <ProgressBar value={setup.done} max={setup.steps.length} className="max-w-xs" label="Store setup" valueText={`Setup ${setup.done} of ${setup.steps.length} done`} />
             </div>
             {nextStep.key === "share"
-              ? <ShareStoreButton size="sm" />
-              : <ActionButton variant="secondary" size="sm" onClick={() => go(nextStep.href)}>{nextStep.action}<ArrowRight className="size-4" aria-hidden="true" /></ActionButton>}
+              ? <ShareStoreButton variant="primary" />
+              : <ActionButton variant="primary" size="md" onClick={() => go(nextStep.href)}>{nextStep.action}<ArrowRight className="size-4" aria-hidden="true" /></ActionButton>}
           </Panel>
         </Shell>
       )}
@@ -236,13 +236,13 @@ function ActiveHome() {
         <Shell>
           <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-4">
             {tasks.map((t, i) => (
-              <motion.a key={t.key} href={t.href} className="group rounded-2xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              <motion.a key={t.key} href={t.href} className="group rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: EASE_OUT, delay: i * 0.04 } }}
                 whileHover={{ y: -2, transition: { duration: 0.15, ease: EASE_OUT } }} whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}>
-                <Panel className={cn("flex h-full flex-col gap-2 p-4 transition-colors group-hover:bg-foreground/[0.04]", t.urgent && "ring-2 ring-warning/60 ring-inset")}>
+                <Panel className={cn("flex h-full flex-col gap-2 p-4 transition-colors group-hover:bg-foreground/[0.04]", t.urgent && "ring-2 ring-warning ring-inset")}>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="flex min-w-0 items-center gap-2 text-[0.8125rem] text-muted-foreground"><t.icon className="size-4 shrink-0" aria-hidden="true" /><span className="truncate">{t.label}</span></span>
-                    <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                    <span className="flex min-w-0 items-center gap-2 text-[0.8125rem] font-medium text-foreground"><t.icon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" /><span className="truncate">{t.label}</span></span>
+                    <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-[translate,color] group-hover:translate-x-1 group-hover:text-foreground" aria-hidden="true" />
                   </div>
                   <RollingNumber value={t.count} className="text-[1.625rem] leading-none font-medium tracking-tight" />
                   <span className="text-xs text-muted-foreground">{t.hint}</span>
@@ -262,11 +262,14 @@ function ActiveHome() {
         <PageColumn>
           <Shell>
             <ShellHeader className={WRAP} icon={outline(ChartBar)} title="Orders per day"
-              subtitle={`${cur.count} ${cur.count === 1 ? "order" : "orders"} in the last ${range} days.${data.busiest ? ` ${data.busiest} are busiest.` : ""}`} />
+              subtitle={<>
+                <span className="block">{cur.count} {cur.count === 1 ? "order" : "orders"} in the last {range} days</span>
+                {data.busiest && <span className="mt-1 flex items-center gap-1 text-foreground"><CalendarBlank className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />{data.busiest} are busiest</span>}
+              </>} />
             <Panel className="p-4">
               <ChartContainer config={chartConfig} className="aspect-auto h-56 w-full">
                 <BarChart data={data.days} margin={{ left: 0, right: 0, top: 8 }} accessibilityLayer>
-                  <CartesianGrid vertical={false} />
+                  <CartesianGrid vertical={false} stroke="var(--border)" />
                   <XAxis dataKey="label" tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />
                   <YAxis tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} width={24} allowDecimals={false} />
                   <ChartTooltip cursor={{ fill: "var(--muted)" }} content={<ChartTooltipContent />} />
@@ -291,7 +294,7 @@ function ActiveHome() {
                 {COURIER_CASH.map((c) => (
                   <li key={c.courier}>
                     <Inset className="flex items-start justify-between gap-4 px-4 py-2 text-sm">
-                      <div className="flex flex-col"><span className="font-medium">{c.courier}</span><span className="text-muted-foreground">{c.parcels} parcels · <span className="whitespace-nowrap">pays {c.settles}</span></span></div>
+                      <div className="flex min-w-0 flex-col"><span className="font-medium">{c.courier}</span><span className="text-muted-foreground">{c.parcels} parcels</span><span className="text-muted-foreground">Pays {c.settles}</span></div>
                       <Money value={c.amount} className="font-medium" />
                     </Inset>
                   </li>
@@ -307,7 +310,7 @@ function ActiveHome() {
                 <ul className="flex flex-col gap-4">
                   {lowStock.map((p) => (
                     <li key={p.key}>
-                      <a href={`#product-${p.productId}`} className="flex items-center justify-between gap-4 rounded-md text-sm outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">
+                      <a href={`#product-${p.productId}`} className="flex items-center justify-between gap-4 rounded-md text-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-surface-inset">
                         <div className="flex min-w-0 flex-col"><span className="truncate font-medium">{p.title}</span>{p.variant && <span className="text-muted-foreground">{p.variant}</span>}</div>
                         <Pill tone={p.left <= 1 ? "negative" : "warning"}>{p.left} left</Pill>
                       </a>
@@ -360,7 +363,7 @@ function NewStoreHome() {
                 aside={<StatusPill tone="neutral">{Math.round((done / steps.length) * 100)}%</StatusPill>} />
               <Panel className="flex flex-col gap-4 p-4">
                 <ProgressBar value={done} max={steps.length} label="Store setup" valueText={`Setup ${done} of ${steps.length} done`} />
-                <ol className="flex flex-col gap-1.5">
+                <ol className="flex flex-col gap-2">
                   {steps.map((s) => {
                     const isNext = next?.key === s.key
                     return (

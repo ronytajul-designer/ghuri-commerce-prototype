@@ -121,7 +121,7 @@ function StatCard({
               size="sm"
               tone={flat ? "neutral" : good ? "positive" : "negative"}
               icon={DeltaIcon}
-              iconWeight="bold"
+              iconWeight="regular"
             >
               <RollingNumber value={`${delta > 0 ? "+" : ""}${delta.toFixed(1)}%`} />
               <span className="sr-only">

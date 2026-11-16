@@ -25,7 +25,7 @@ const NAV: { key: NavKey; title: string; icon: typeof House; href: string }[] = 
 ]
 
 const row =
-  "group/nav relative flex h-9 w-full items-center gap-2.5 rounded-xl px-2.5 text-sm outline-none select-none transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:active:scale-100"
+  "group/nav relative flex h-9 w-full items-center gap-2.5 rounded-xl px-2.5 text-sm outline-none select-none transition-[background-color,color,scale] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-ring motion-reduce:active:scale-100"
 
 function useIsDesktop() {
   const q = "(min-width: 768px)"

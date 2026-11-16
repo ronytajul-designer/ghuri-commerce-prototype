@@ -164,7 +164,7 @@ export function DataTable<R extends DataRow>({
           aside={
             <IconButton
               icon={copied ? Check : Copy}
-              iconWeight={copied ? "bold" : "fill"}
+              iconWeight={copied ? "bold" : "regular"}
               label={copied ? "Copied as CSV" : "Copy as CSV"}
               variant="quiet"
               size="sm"
@@ -258,7 +258,6 @@ export function DataTable<R extends DataRow>({
                           >
                             {c.label}
                             <SortIcon
-                              weight="bold"
                               aria-hidden="true"
                               className={cn(
                                 "size-3 transition-opacity",
@@ -345,7 +344,6 @@ export function DataTable<R extends DataRow>({
           <span className="flex items-center gap-1">
             <IconButton
               icon={CaretLeft}
-              iconWeight="bold"
               label="Previous page"
               variant="quiet"
               size="sm"
@@ -357,7 +355,6 @@ export function DataTable<R extends DataRow>({
             </span>
             <IconButton
               icon={CaretRight}
-              iconWeight="bold"
               label="Next page"
               variant="quiet"
               size="sm"

@@ -45,7 +45,7 @@ export function IconTile({
       )}
       {...props}
     >
-      {IconComponent ? <IconComponent weight="fill" className="size-4" /> : children}
+      {IconComponent ? <IconComponent className="size-4" /> : children}
     </div>
   );
 }

@@ -6,29 +6,29 @@ export type ButtonVariant = "primary" | "secondary" | "quiet" | "danger";
 export type ButtonSize = "sm" | "md";
 
 const variants: Record<ButtonVariant, string> = {
-  // The silver primary is the one place a hairline edge and a drop shadow are allowed.
+  // Solid brand fill, white text. Dark mode deepens the brand blue so white text keeps 4.5:1.
   primary:
-    "border border-(--button-edge) bg-(image:--button) bg-origin-border text-(--button-foreground) shadow-(--button-shadow) hover:bg-(image:--button-hover)",
+    "bg-brand text-brand-foreground shadow-sm hover:bg-[color-mix(in_oklab,var(--brand),black_14%)] active:bg-[color-mix(in_oklab,var(--brand),black_22%)] dark:bg-[color-mix(in_oklab,var(--brand),black_16%)] dark:hover:bg-[color-mix(in_oklab,var(--brand),black_26%)] dark:active:bg-[color-mix(in_oklab,var(--brand),black_32%)]",
   secondary:
-    "bg-(image:--button-secondary) text-foreground hover:bg-(image:--button-secondary-hover)",
-  quiet: "text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground",
+    "border border-foreground/50 bg-foreground/[0.06] text-foreground hover:border-foreground/75 hover:bg-foreground/[0.1] active:bg-foreground/[0.14]",
+  quiet: "text-muted-foreground hover:bg-foreground/[0.08] hover:text-foreground active:bg-foreground/[0.12]",
   danger: "bg-negative/15 text-negative hover:bg-negative/25",
 };
 
 const sizes: Record<ButtonSize, { base: string; icon: string; glyph: string }> = {
-  sm: { base: "h-8 gap-1.5 px-3.5 text-[0.8125rem]", icon: "size-8", glyph: "size-3.5" },
+  sm: { base: "h-8 gap-2 px-4 text-[0.8125rem]", icon: "size-8", glyph: "size-4" },
   md: { base: "h-9 gap-2 px-4 text-sm", icon: "size-9", glyph: "size-4" },
 };
 
 const base =
-  "inline-flex shrink-0 items-center justify-center rounded-full font-medium whitespace-nowrap transition-[background-color,color,scale,opacity] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40";
+  "inline-flex shrink-0 items-center justify-center rounded-full font-medium whitespace-nowrap transition-[background-color,color,scale,opacity] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] select-none outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40";
 
 export type ButtonProps = React.ComponentProps<"button"> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  /** Leading Phosphor icon. Line glyphs (check, x, arrows) render bold, others filled. */
+  /** Leading Phosphor icon. Outline (regular) weight by default. */
   icon?: Icon;
-  iconWeight?: "fill" | "bold";
+  iconWeight?: "regular" | "fill" | "bold";
   /** Shows a spinner in place of the icon and disables the button. */
   loading?: boolean;
 };
@@ -37,7 +37,7 @@ export function Button({
   variant = "secondary",
   size = "sm",
   icon: IconComponent,
-  iconWeight = "fill",
+  iconWeight = "regular",
   loading = false,
   disabled,
   className,
@@ -87,7 +87,7 @@ export function IconButton({
   variant = "quiet",
   size = "sm",
   icon: IconComponent,
-  iconWeight = "fill",
+  iconWeight = "regular",
   label,
   tooltip,
   tooltipSide = "top",
