@@ -22,7 +22,7 @@ const isRepeat = (c: Customer) => c.delivered >= 2
 
 function CustomerTags({ c }: { c: Customer }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1">
       {isRisky(c) && <Badge variant="destructive">Often returns</Badge>}
       {isRepeat(c) && <Badge variant="success">Repeat buyer</Badge>}
       {c.orders.length === 1 && <Badge variant="muted">New</Badge>}
@@ -105,7 +105,7 @@ export function CustomerDetailPage({ phone }: { phone: string }) {
 
   return (
     <Page>
-      <PageHeader backHref="#customers" backLabel="Back to customers" title={c.name} badge={<CustomerTags c={c} />} description={`First order ${new Date(Math.min(...c.orders.map((o) => o.createdAt))).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: new Date(Math.min(...c.orders.map((o) => o.createdAt))).getFullYear() === new Date().getFullYear() ? undefined : "numeric" })}`}
+      <PageHeader backHref="#customers" backLabel="Back to customers" title={c.name} badge={<CustomerTags c={c} />} description={`Customer since ${timeAgo(c.orders[c.orders.length - 1].createdAt)}`}
         actions={<>
           <Button variant="outline" asChild><a href={`tel:${c.phone}`}><PhoneIcon />Call</a></Button>
           <Button variant="outline" asChild><a href={`https://wa.me/88${c.phone}`} target="_blank" rel="noreferrer"><MessageCircleIcon />WhatsApp</a></Button>
@@ -148,7 +148,7 @@ export function CustomerDetailPage({ phone }: { phone: string }) {
             <CardContent>
               <Field>
                 <FieldLabel htmlFor="cnote" className="sr-only">Note about this customer</FieldLabel>
-                <Textarea id="cnote" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Prefers delivery after 5 pm" />
+                <Textarea id="cnote" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Prefers delivery after 5 pm" />
                 <FieldDescription>Only staff see this. Shown on every order from this number.</FieldDescription>
               </Field>
             </CardContent>

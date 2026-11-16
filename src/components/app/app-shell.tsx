@@ -37,14 +37,13 @@ export function AppShell({ active, badges, children }: { active: NavKey; badges?
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg" asChild>
-                <a href="#settings-general" aria-label={`${state.store.name}, store settings`}>
+              <SidebarMenuButton size="lg">
                 <div className="flex size-8 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">{initial}</div>
                 <div className="grid flex-1 text-left leading-tight">
                   <span className="truncate font-medium">{state.store.name}</span>
                   <span className="truncate text-xs text-muted-foreground">Owner</span>
                 </div>
-                </a>
+                <ChevronsUpDownIcon className="ml-auto" />
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

@@ -20,8 +20,6 @@ export type Order = {
   noAnswer: number
   courier?: Courier
   consignment?: string
-  weightKg?: number
-  courierNote?: string
   cancelReason?: string
   note?: string
   log: { at: number; text: string }[]

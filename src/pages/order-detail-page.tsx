@@ -197,8 +197,6 @@ export function OrderDetailPage({ id }: { id: number }) {
                 { term: "Area", detail: [o.thana, o.district].filter(Boolean).join(", ") },
                 { term: "Zone", detail: o.district === "Dhaka" ? "Inside Dhaka" : "Outside Dhaka" },
                 ...(o.consignment ? [{ term: "Tracking", detail: <span className="tabular-nums">{o.consignment}</span> }] : []),
-                ...(o.weightKg ? [{ term: "Weight", detail: `${o.weightKg} kg` }] : []),
-                ...(o.courierNote ? [{ term: "Courier note", detail: o.courierNote }] : []),
               ]} />
             </CardContent>
           </Card>
@@ -219,7 +217,7 @@ export function OrderDetailPage({ id }: { id: number }) {
       <CancelOrderDialog open={dialog === "cancel"} orderId={o.id} onOpenChange={(v) => !v && setDialog(null)}
         onSubmit={(r) => { actions.cancel(o.id, r); setDialog(null); toast(`#${o.id} cancelled`) }} />
       <BookCourierDialog open={dialog === "book"} orders={[o]} onOpenChange={(v) => !v && setDialog(null)}
-        onSubmit={(c, ids, opts) => { actions.book(ids, c, opts); setDialog(null); toast.success(`#${o.id} booked with ${c}`) }} />
+        onSubmit={(c, ids) => { actions.book(ids, c); setDialog(null); toast.success(`#${o.id} booked with ${c}`) }} />
     </Page>
   )
 }

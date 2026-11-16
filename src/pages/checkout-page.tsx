@@ -104,7 +104,7 @@ export function CheckoutPage() {
     return (
       <StoreFrame back={{ href: "#store", label: "Back to store" }}>
         <main className="mx-auto w-full max-w-xl px-4 py-12">
-          <h1 className="sr-only">Checkout</h1><Card><Empty className="py-12"><EmptyHeader><EmptyMedia variant="icon"><ShoppingBagIcon /></EmptyMedia><EmptyTitle>Your cart is empty</EmptyTitle></EmptyHeader><EmptyContent><Button asChild><a href="#store">Shop now</a></Button></EmptyContent></Empty></Card>
+          <Card><Empty className="py-12"><EmptyHeader><EmptyMedia variant="icon"><ShoppingBagIcon /></EmptyMedia><EmptyTitle>Your cart is empty</EmptyTitle></EmptyHeader><EmptyContent><Button asChild><a href="#store">Shop now</a></Button></EmptyContent></Empty></Card>
         </main>
       </StoreFrame>
     )
@@ -246,7 +246,7 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
       </p>
       {(state.store.returnPolicy || state.store.phone) && (
         <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-          {state.store.returnPolicy && <span className="flex gap-2"><span className="flex h-5 shrink-0 items-center" aria-hidden="true"><RotateCcwIcon className="size-4 shrink-0" /></span>{state.store.returnPolicy}</span>}
+          {state.store.returnPolicy && <span className="flex gap-2"><RotateCcwIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />{state.store.returnPolicy}</span>}
           {state.store.phone && <span>Need help? Call <a href={`tel:${state.store.phone}`} className="text-foreground underline underline-offset-4">{state.store.phone}</a></span>}
         </div>
       )}
@@ -370,7 +370,7 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
                       <ChoiceCardGroup<Wallet> name="adv-wallet" aria-label="Pay the delivery charge with" columns={2} value={advWallet} onValueChange={setAdvWallet}
                         choices={wallets.map((w) => ({ value: w, title: WALLET_NAME[w] }))} />
                     )}
-                    <p className="flex gap-2 text-sm"><span className="flex h-5 shrink-0 items-center" aria-hidden="true"><WalletIcon className="size-4 shrink-0 text-muted-foreground" /></span><span>{walletLine(state, payWallet, advanceMode ? advance : total)}</span></p>
+                    <p className="flex gap-2 text-sm"><WalletIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" /><span>{walletLine(state, payWallet, advanceMode ? advance : total)}</span></p>
                     <Field data-invalid={show("trx") ? true : undefined}>
                       <FieldLabel htmlFor="trx">Transaction ID</FieldLabel>
                       <Input id="trx" autoComplete="off" autoCapitalize="characters" spellCheck={false} placeholder="8N7A6D5K3P" maxLength={14} required

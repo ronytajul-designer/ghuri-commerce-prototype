@@ -51,13 +51,13 @@ function StoreFooter() {
         <div className="flex flex-col gap-2">
           <span className="font-medium">Contact</span>
           {state.store.phone ? <a href={`tel:${state.store.phone}`} className="text-muted-foreground hover:text-foreground">Call {state.store.phone}</a> : <span className="text-muted-foreground">Contact details coming soon</span>}
-          {state.store.facebook && <a href={state.store.facebook.startsWith("http") ? state.store.facebook : `https://${state.store.facebook.replace(/^\/+/, "")}`} target="_blank" rel="noreferrer" className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">Facebook page</a>}
+          {state.store.facebook && <span className="text-muted-foreground">{state.store.facebook}</span>}
         </div>
         <div className="flex flex-col gap-2"><span className="font-medium">Returns</span><span className="text-muted-foreground">{state.store.returnPolicy || "Ask the seller before ordering."}</span></div>
       </div>
       <div className="flex items-center justify-center gap-4 pb-8 text-xs text-muted-foreground">
         <span>Powered by Ghuri Commerce</span>
-        <a href="#home" className="inline-flex items-center gap-2 underline underline-offset-4"><LayoutDashboardIcon className="size-3" aria-hidden="true" />Back to admin (prototype)</a>
+        <a href="#home" className="inline-flex items-center gap-1 underline underline-offset-4"><LayoutDashboardIcon className="size-3" />Back to admin (prototype)</a>
       </div>
     </footer>
   )
@@ -204,16 +204,16 @@ export function StoreProductPage({ id }: { id: string }) {
           {p.sizes.length > 0 && (
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-2 text-sm font-medium">Size{size && <span className="font-normal text-muted-foreground">: {size}</span>}</legend>
-              <ToggleGroup type="single" variant="outline" spacing={2} value={size} onValueChange={(v) => { if (!v || !sizeOut(v)) setSize(v) }} className="flex-wrap">
-                {p.sizes.map((s) => <ToggleGroupItem key={s} value={s} aria-disabled={sizeOut(s) || undefined} aria-label={sizeOut(s) ? `${s}, sold out` : undefined} className="min-w-12 px-4 aria-disabled:cursor-not-allowed aria-disabled:line-through aria-disabled:opacity-50 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{s}{sizeOut(s) && <span className="sr-only">, sold out</span>}</ToggleGroupItem>)}
+              <ToggleGroup type="single" variant="outline" spacing={2} value={size} onValueChange={setSize} className="flex-wrap">
+                {p.sizes.map((s) => <ToggleGroupItem key={s} value={s} disabled={sizeOut(s)} aria-label={sizeOut(s) ? `${s}, sold out` : undefined} className="min-w-12 px-4 disabled:line-through data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{s}{sizeOut(s) && <span className="sr-only"> (sold out)</span>}</ToggleGroupItem>)}
               </ToggleGroup>
             </fieldset>
           )}
           {p.colours.length > 0 && (
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-2 text-sm font-medium">Colour{colour && <span className="font-normal text-muted-foreground">: {colour}</span>}</legend>
-              <ToggleGroup type="single" variant="outline" spacing={2} value={colour} onValueChange={(v) => { if (!v || !colourOut(v)) setColour(v) }} className="flex-wrap">
-                {p.colours.map((c) => <ToggleGroupItem key={c} value={c} aria-disabled={colourOut(c) || undefined} aria-label={colourOut(c) ? `${c}, sold out` : undefined} className="px-4 aria-disabled:cursor-not-allowed aria-disabled:line-through aria-disabled:opacity-50 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{c}{colourOut(c) && <span className="sr-only">, sold out</span>}</ToggleGroupItem>)}
+              <ToggleGroup type="single" variant="outline" spacing={2} value={colour} onValueChange={setColour} className="flex-wrap">
+                {p.colours.map((c) => <ToggleGroupItem key={c} value={c} disabled={colourOut(c)} aria-label={colourOut(c) ? `${c}, sold out` : undefined} className="px-4 disabled:line-through data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{c}{colourOut(c) && <span className="sr-only"> (sold out)</span>}</ToggleGroupItem>)}
               </ToggleGroup>
             </fieldset>
           )}
@@ -235,11 +235,11 @@ export function StoreProductPage({ id }: { id: string }) {
           </div>
           <Card size="sm">
             <CardContent className="flex flex-col gap-4 text-sm">
-              <div className="flex gap-2"><span className="flex h-5 shrink-0 items-center" aria-hidden="true"><BanknoteIcon className="size-4 shrink-0 text-muted-foreground" /></span><span>Cash on delivery. Check the parcel before you pay.</span></div>
-              <div className="flex gap-2"><span className="flex h-5 shrink-0 items-center" aria-hidden="true"><TruckIcon className="size-4 shrink-0 text-muted-foreground" /></span>
+              <div className="flex gap-2"><BanknoteIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" /><span>Cash on delivery. Check the parcel before you pay.</span></div>
+              <div className="flex gap-2"><TruckIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                 {state.zones.length ? <span className="flex flex-col gap-1">{state.zones.map((z) => <span key={z.id}>{z.name}: <Money value={z.fee} />, {z.eta}</span>)}</span> : <span>Delivery charge shown at checkout</span>}
               </div>
-              {state.store.returnPolicy && <div className="flex gap-2"><span className="flex h-5 shrink-0 items-center" aria-hidden="true"><RotateCcwIcon className="size-4 shrink-0 text-muted-foreground" /></span><span>{state.store.returnPolicy}</span></div>}
+              {state.store.returnPolicy && <div className="flex gap-2"><RotateCcwIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" /><span>{state.store.returnPolicy}</span></div>}
             </CardContent>
           </Card>
           {p.description && <div className="flex flex-col gap-2"><h2 className="text-sm font-medium">Details</h2><p className="text-sm text-muted-foreground">{p.description}</p></div>}

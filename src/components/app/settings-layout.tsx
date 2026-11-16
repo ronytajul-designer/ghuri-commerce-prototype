@@ -19,8 +19,8 @@ export function SettingsLayout({ active, title, description, actions, children }
     <Page>
       <PageHeader title="Settings" description="Your store’s details, delivery, payments and team." />
       <div className="grid items-start gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <nav aria-label="Settings sections" >
-          <ul className="flex flex-wrap gap-2 lg:flex-col lg:flex-nowrap lg:gap-1">
+        <nav aria-label="Settings sections" className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0 [scrollbar-width:none]">
+          <ul className="flex gap-2 lg:flex-col lg:gap-1">
             {SETTINGS_NAV.map((n) => (
               <li key={n.key}>
                 <a href={`#${n.key}`} aria-current={active === n.key ? "page" : undefined}

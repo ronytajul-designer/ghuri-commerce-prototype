@@ -109,7 +109,7 @@ export function ProductsPage() {
                   <li key={p.id}>
                     <a href={`#product-${p.id}`} className="flex items-center gap-4 px-4 py-4 outline-none focus-visible:bg-muted">
                       <ProductThumb product={p} className="size-12" />
-                      <div className="flex min-w-0 flex-1 flex-col gap-2">
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
                         <div className="flex items-baseline justify-between gap-2"><span className="truncate font-medium">{p.title}</span><Money value={p.price} className="text-sm" /></div>
                         <div className="flex flex-wrap items-center gap-2"><Badge variant={STATUS_BADGE[p.status].variant}>{STATUS_BADGE[p.status].label}</Badge><StockBadge product={p} /></div>
                       </div>
