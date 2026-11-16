@@ -27,6 +27,9 @@ import { ProductsTuffuiPage } from "@/pages/products-tuffui-page"
 import { ProductFormTuffuiPage } from "@/pages/product-form-tuffui-page"
 import { OrdersTuffuiPage } from "@/pages/orders-tuffui-page"
 import { OrderDetailTuffuiPage } from "@/pages/order-detail-tuffui-page"
+import { CollectionFormTuffuiPage, CollectionsTuffuiPage } from "@/pages/collections-tuffui-page"
+import { CustomerDetailTuffuiPage, CustomersTuffuiPage } from "@/pages/customers-tuffui-page"
+import { ThemeTuffuiPage } from "@/pages/theme-tuffui-page"
 
 /**
  * Routes are plain hash names so they also work inside a Claude artifact:
@@ -80,6 +83,11 @@ function Shell() {
   else if (route === "orders-tuffui") content = tuff("orders", <OrdersTuffuiPage />)
   else if (m(/^orders-tuffui-(\w+)$/) && STAGES.includes(m(/^orders-tuffui-(\w+)$/) as OrderStatus)) content = tuff("orders", <OrdersTuffuiPage key={route} initialStage={m(/^orders-tuffui-(\w+)$/) as OrderStatus} />)
   else if (m(/^order-tuffui-(\d+)$/)) content = tuff("orders", <OrderDetailTuffuiPage key={route} id={Number(m(/^order-tuffui-(\d+)$/))} />)
+  else if (route === "collections-tuffui") content = tuff("collections", <CollectionsTuffuiPage />)
+  else if (route === "collection-tuffui-new") content = tuff("collections", <CollectionFormTuffuiPage key={route} />)
+  else if (m(/^collection-tuffui-(.+)$/)) content = tuff("collections", <CollectionFormTuffuiPage key={route} id={m(/^collection-tuffui-(.+)$/)} />)
+  else if (route === "customers-tuffui") content = tuff("customers", <CustomersTuffuiPage />)
+  else if (m(/^customer-tuffui-(.+)$/)) content = tuff("customers", <CustomerDetailTuffuiPage key={route} phone={m(/^customer-tuffui-(.+)$/)!} />)
   else if (route === "products") content = admin("products", <ProductsPage />)
   else if (route === "product-new") content = admin("products", <ProductFormPage key={route} />)
   else if (m(/^product-(.+)$/)) content = admin("products", <ProductFormPage key={route} id={m(/^product-(.+)$/)} />)
@@ -90,6 +98,7 @@ function Shell() {
   else if (m(/^customer-(.+)$/)) content = admin("customers", <CustomerDetailPage key={route} phone={m(/^customer-(.+)$/)!} />)
   else if (route === "home-tuffui") content = <AppShellTuffui active="home" badges={{ orders: toConfirm }}><HomeTuffuiPage /></AppShellTuffui>
   else if (route === "tuffui") content = admin("home", <TuffuiPreviewPage />)
+  else if (route === "theme-tuffui") content = tuff("theme", <ThemeTuffuiPage />)
   else if (route === "theme") content = admin("theme", <ThemePage />)
   else if (route === "settings" || route === "settings-general") content = admin("settings", <GeneralSettingsPage />)
   else if (route === "settings-shipping") content = admin("settings", <ShippingSettingsPage />)

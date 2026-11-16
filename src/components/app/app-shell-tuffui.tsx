@@ -17,10 +17,10 @@ import { useApp } from "@/store/store"
 const NAV: { key: NavKey; title: string; icon: typeof House; href: string }[] = [
   { key: "home", title: "Home", icon: House, href: "#home-tuffui" },
   { key: "products", title: "Products", icon: Package, href: "#products-tuffui" },
-  { key: "collections", title: "Collections", icon: FolderSimple, href: "#collections" },
+  { key: "collections", title: "Collections", icon: FolderSimple, href: "#collections-tuffui" },
   { key: "orders", title: "Orders", icon: ShoppingCart, href: "#orders-tuffui" },
-  { key: "customers", title: "Customers", icon: Users, href: "#customers" },
-  { key: "theme", title: "Theme", icon: Palette, href: "#theme" },
+  { key: "customers", title: "Customers", icon: Users, href: "#customers-tuffui" },
+  { key: "theme", title: "Theme", icon: Palette, href: "#theme-tuffui" },
   { key: "settings", title: "Settings", icon: Gear, href: "#settings-general" },
 ]
 
@@ -80,7 +80,7 @@ function SidebarBody({ active, badges, onNavigate, onClose }: {
       </nav>
 
       <div className="flex flex-col gap-0.5">
-        <a href="#store" onClick={onNavigate} className={cn(row, "text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground")}>
+        <a href="#store-tuffui" onClick={onNavigate} className={cn(row, "text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground")}>
           <ArrowSquareOut className="size-5 shrink-0" aria-hidden="true" /><span>View store</span>
         </a>
         <Menu
@@ -103,7 +103,7 @@ function SidebarBody({ active, badges, onNavigate, onClose }: {
                 { id: "empty", label: "Start a new store", icon: outline(Sparkle), onSelect: () => { reset("empty"); go("home"); toast("Started a new, empty store") } },
               ],
             },
-            { id: "out", items: [{ id: "logout", label: "Log out", icon: outline(SignOut), onSelect: () => go("login") }] },
+            { id: "out", items: [{ id: "logout", label: "Log out", icon: outline(SignOut), onSelect: () => go("login-tuffui") }] },
           ]}
         />
       </div>
@@ -111,7 +111,7 @@ function SidebarBody({ active, badges, onNavigate, onClose }: {
   )
 }
 
-function ThemeMenu() {
+export function ThemeMenu() {
   const { theme, setTheme } = useAppTheme()
   return (
     <Menu
@@ -185,7 +185,7 @@ export function AppShellTuffui({ active, badges, children }: { active: NavKey; b
                 tooltipSide="bottom" tooltipAlign="start" aria-expanded={sidebarOpen} onClick={toggle} />
               <span className="truncate text-sm font-medium md:hidden">{state.store.name}</span>
               <div className="ml-auto flex items-center gap-2">
-                <ActionButton variant="quiet" size="md" icon={outline(ArrowSquareOut)} onClick={() => { window.location.hash = "store" }}>View store</ActionButton>
+                <ActionButton variant="quiet" size="md" icon={outline(ArrowSquareOut)} onClick={() => { window.location.hash = "store-tuffui" }}>View store</ActionButton>
                 <ThemeMenu />
               </div>
             </header>

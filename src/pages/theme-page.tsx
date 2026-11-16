@@ -206,7 +206,7 @@ const FRAME_HEIGHT = 640
  * Renders children inside an iframe at a fixed virtual width (390 phone, 1280 desktop) and scales it to fit,
  * so the store's own breakpoints behave as they would on that device. Styles and dark mode are copied from the admin.
  */
-function PreviewViewport({ width, children }: { width: number; children: React.ReactNode }) {
+export function PreviewViewport({ width, children }: { width: number; children: React.ReactNode }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLIFrameElement>(null)
   const [mount, setMount] = useState<HTMLElement | null>(null)

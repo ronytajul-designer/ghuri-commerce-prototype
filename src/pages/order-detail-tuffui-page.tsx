@@ -189,7 +189,7 @@ export function OrderDetailTuffuiPage({ id }: { id: number }) {
           <motion.div {...rise(1)}>
             <Shell>
               <ShellHeader as="h2" icon={outline(User)} title="Customer"
-                aside={<ActionButton variant="quiet" size="sm" className="text-foreground" onClick={() => { window.location.hash = `customer-${o.phone}` }}>View customer</ActionButton>} />
+                aside={<ActionButton variant="quiet" size="sm" className="text-foreground" onClick={() => { window.location.hash = `customer-tuffui-${o.phone}` }}>View customer</ActionButton>} />
               <Panel className="flex flex-col gap-6 p-4">
                 {customerNote && (
                   <Inset className="flex flex-col gap-1 p-4 text-sm">
