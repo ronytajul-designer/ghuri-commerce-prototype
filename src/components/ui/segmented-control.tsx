@@ -98,7 +98,7 @@ export function Segmented<T extends string = string>({
                 <motion.span
                   layoutId={pillId}
                   transition={instant ? { duration: 0 } : spring}
-                  className="absolute inset-0 rounded-full bg-surface-raised"
+                  className="absolute inset-0 rounded-full bg-white shadow-[0_1px_2px_rgb(0_0_0/0.12)] ring-1 ring-black/10 dark:bg-surface-raised dark:ring-white/10"
                 />
               )}
               <span className="relative">{option.label}</span>
