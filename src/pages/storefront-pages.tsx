@@ -14,7 +14,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Money } from "@/components/app/money"
 import { ModeToggle } from "@/components/mode-toggle"
 import { cn } from "@/lib/utils"
-import { productStock, useApp } from "@/store/store"
+import { productStock, stockFor, useApp } from "@/store/store"
 import type { AppState, Product, ThemeSettings } from "@/store/types"
 
 /* ---------- Shared frame ---------- */
@@ -156,6 +156,10 @@ export function StoreProductPage({ id }: { id: string }) {
   const needsChoice = (p.sizes.length > 0 && !size) || (p.colours.length > 0 && !colour)
   const variant = p.variants.find((v) => v.key === key)
   const inStock = p.variants.length ? (variant ? variant.stock : 1) : p.stock
+  const inCart = state.cart.filter((l) => l.productId === p.id && l.variantKey === (variant?.key ?? undefined)).reduce((n, l) => n + l.qty, 0)
+  const known = !p.variants.length || !!variant
+  const maxQty = known ? Math.max(0, inStock - inCart) : Infinity
+  const shownQty = known ? Math.max(1, Math.min(qty, maxQty)) : qty
   const price = effectivePrice(p, variant?.key)
   const off = p.compareAt ? Math.round((1 - price / p.compareAt) * 100) : 0
   const variantStock = (s: string, c: string) => p.variants.find((v) => v.key === [s, c].filter(Boolean).join(" / "))?.stock ?? 0
@@ -165,6 +169,12 @@ export function StoreProductPage({ id }: { id: string }) {
   const add = (go: boolean) => {
     setTried(true)
     if (needsChoice || inStock === 0) return
+    if (maxQty <= 0) {
+      if (go) window.location.hash = "checkout"
+      else toast.error(`You already have all ${inStock} in your cart`)
+      return
+    }
+    const qty = shownQty
     set((s) => {
       const existing = s.cart.find((l) => l.productId === p.id && l.variantKey === (variant?.key ?? undefined))
       const cart = existing ? s.cart.map((l) => (l === existing ? { ...l, qty: l.qty + qty } : l)) : [...s.cart, { productId: p.id, variantKey: variant?.key, qty }]
@@ -195,7 +205,7 @@ export function StoreProductPage({ id }: { id: string }) {
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-2 text-sm font-medium">Size{size && <span className="font-normal text-muted-foreground">: {size}</span>}</legend>
               <ToggleGroup type="single" variant="outline" spacing={2} value={size} onValueChange={setSize} className="flex-wrap">
-                {p.sizes.map((s) => <ToggleGroupItem key={s} value={s} disabled={sizeOut(s)} className="min-w-12 px-4 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{s}</ToggleGroupItem>)}
+                {p.sizes.map((s) => <ToggleGroupItem key={s} value={s} disabled={sizeOut(s)} aria-label={sizeOut(s) ? `${s}, sold out` : undefined} className="min-w-12 px-4 disabled:line-through data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{s}{sizeOut(s) && <span className="sr-only"> (sold out)</span>}</ToggleGroupItem>)}
               </ToggleGroup>
             </fieldset>
           )}
@@ -203,18 +213,20 @@ export function StoreProductPage({ id }: { id: string }) {
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-2 text-sm font-medium">Colour{colour && <span className="font-normal text-muted-foreground">: {colour}</span>}</legend>
               <ToggleGroup type="single" variant="outline" spacing={2} value={colour} onValueChange={setColour} className="flex-wrap">
-                {p.colours.map((c) => <ToggleGroupItem key={c} value={c} disabled={colourOut(c)} className="px-4 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{c}</ToggleGroupItem>)}
+                {p.colours.map((c) => <ToggleGroupItem key={c} value={c} disabled={colourOut(c)} aria-label={colourOut(c) ? `${c}, sold out` : undefined} className="px-4 disabled:line-through data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">{c}{colourOut(c) && <span className="sr-only"> (sold out)</span>}</ToggleGroupItem>)}
               </ToggleGroup>
             </fieldset>
           )}
           {tried && needsChoice && <p role="alert" className="text-sm text-destructive">Choose {[p.sizes.length && !size ? "a size" : "", p.colours.length && !colour ? "a colour" : ""].filter(Boolean).join(" and ")}.</p>}
-          {variant && variant.stock > 0 && variant.stock <= 3 && <p className="text-sm text-warning-foreground">Only {variant.stock} left</p>}
+          {known && inStock > 0 && (inStock <= 5 || shownQty >= maxQty) && (
+            <p className="text-sm text-warning-foreground" id="stock-note">Only {inStock} left{inCart > 0 ? `, ${inCart} already in your cart` : ""}</p>
+          )}
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium" id="qty-label">Quantity</span>
             <div className="flex items-center rounded-md border" role="group" aria-labelledby="qty-label">
-              <Button variant="ghost" size="icon" aria-label="Less" disabled={qty <= 1} onClick={() => setQty(qty - 1)}><MinusIcon /></Button>
-              <span className="w-8 text-center tabular-nums" aria-live="polite">{qty}</span>
-              <Button variant="ghost" size="icon" aria-label="More" onClick={() => setQty(qty + 1)}><PlusIcon /></Button>
+              <Button variant="ghost" size="icon" aria-label="Less" disabled={shownQty <= 1} onClick={() => setQty(shownQty - 1)}><MinusIcon /></Button>
+              <span className="w-8 text-center tabular-nums" aria-live="polite">{shownQty}</span>
+              <Button variant="ghost" size="icon" aria-label="More" aria-describedby={known && inStock > 0 ? "stock-note" : undefined} disabled={shownQty >= maxQty} onClick={() => setQty(shownQty + 1)}><PlusIcon /></Button>
             </div>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -279,10 +291,14 @@ export function CartPage() {
                         <div className="flex items-center rounded-md border" role="group" aria-label={`Quantity of ${l.product.title}`}>
                           <Button variant="ghost" size="icon-sm" aria-label="Less" onClick={() => setQty(i, l.line.qty - 1)}><MinusIcon /></Button>
                           <span className="w-8 text-center text-sm tabular-nums">{l.line.qty}</span>
-                          <Button variant="ghost" size="icon-sm" aria-label="More" onClick={() => setQty(i, l.line.qty + 1)}><PlusIcon /></Button>
+                          <Button variant="ghost" size="icon-sm" aria-label="More" disabled={l.line.qty >= stockFor(l.product, l.variant?.key)} onClick={() => setQty(i, l.line.qty + 1)}><PlusIcon /></Button>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => setQty(i, 0)}><TrashIcon />Remove</Button>
                       </div>
+                      {l.line.qty > stockFor(l.product, l.variant?.key) && (
+                        <p role="alert" className="text-sm text-destructive">{stockFor(l.product, l.variant?.key) === 0 ? "Sold out. Remove it to check out." : `Only ${stockFor(l.product, l.variant?.key)} left. Lower the quantity to check out.`}</p>
+                      )}
+                      {l.line.qty === stockFor(l.product, l.variant?.key) && <p className="text-sm text-muted-foreground">That is all we have in stock</p>}
                     </div>
                   </li>
                 ))}
@@ -292,11 +308,11 @@ export function CartPage() {
               <CardHeader><CardTitle>Summary</CardTitle></CardHeader>
               <CardContent className="gap-4 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><Money value={sub} /></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Delivery</span><span>{state.zones.length ? <>From <Money value={Math.min(...state.zones.map((z) => z.fee))} /></> : "Free"}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Delivery</span><span>{state.zones.length ? <>From <Money value={Math.min(...state.zones.map((z) => z.fee))} /></> : "Confirmed by the seller"}</span></div>
                 {free && sub < free && <Alert><TruckIcon /><AlertDescription className="text-foreground">Add <Money value={free - sub} /> more for free delivery.</AlertDescription></Alert>}
                 {free && sub >= free && <Badge variant="success">Free delivery</Badge>}
                 <Separator />
-                <p className="text-muted-foreground">Exact delivery charge shows when you pick your district.</p>
+                <p className="text-muted-foreground">{state.zones.length ? "Exact delivery charge shows when you pick your district." : "The seller tells you the delivery charge when they call to confirm."}</p>
               </CardContent>
               <CardFooter><Button size="lg" className="w-full" asChild><a href="#checkout">Checkout</a></Button></CardFooter>
             </Card>

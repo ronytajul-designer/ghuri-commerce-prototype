@@ -281,6 +281,16 @@ export function LoginPage() {
   const idRef = useRef<HTMLInputElement>(null)
   const pwRef = useRef<HTMLInputElement>(null)
   const backRef = useRef<HTMLButtonElement>(null)
+  const codeRef = useRef<HTMLInputElement>(null)
+  const newPwRef = useRef<HTMLInputElement>(null)
+  const [code, setCode] = useState("")
+  const [newPw, setNewPw] = useState("")
+  const [resetTouched, setResetTouched] = useState({ code: false, pw: false })
+  const [updated, setUpdated] = useState(false)
+  const codeError = (v: string) => (!v.trim() ? "Enter the 6-digit code from the SMS" : /^\d{6}$/.test(cleanPhone(v)) ? "" : "The code is 6 digits, like 123456")
+  const newPwError = (v: string) => (!v ? "Enter a new password" : passwordError(v))
+  const codeErr = resetTouched.code ? codeError(code) : ""
+  const newPwErr = resetTouched.pw ? newPwError(newPw) : ""
 
   const idErr = touched.id ? identifierError(id) : ""
   const pwErr = touched.password ? (password ? passwordError(password) : "Enter your password") : ""
@@ -289,7 +299,9 @@ export function LoginPage() {
     setView(next)
     setFailed(false)
     setTouched({ id: false, password: false })
-    requestAnimationFrame(() => (next === "sent" ? backRef.current : idRef.current)?.focus())
+    if (next !== "login") setUpdated(false)
+    setCode(""); setNewPw(""); setResetTouched({ code: false, pw: false })
+    requestAnimationFrame(() => (next === "sent" ? codeRef.current : idRef.current)?.focus())
   }
 
   const login = (e: React.FormEvent) => {
@@ -309,6 +321,16 @@ export function LoginPage() {
     setTouched((t) => ({ ...t, id: true }))
     if (identifierError(id)) { idRef.current?.focus(); return }
     go("sent")
+  }
+
+  const updatePassword = (e: React.FormEvent) => {
+    e.preventDefault()
+    setResetTouched({ code: true, pw: true })
+    if (codeError(code)) { codeRef.current?.focus(); return }
+    if (newPwError(newPw)) { newPwRef.current?.focus(); return }
+    setPassword("")
+    go("login")
+    setUpdated(true)
   }
 
   const idField = (
@@ -336,11 +358,31 @@ export function LoginPage() {
                 </FieldGroup>
               </form>
             ) : (
-              <Alert>
-                <CheckCircle2Icon className="text-success-foreground!" />
-                <AlertTitle>Code sent to {normaliseIdentifier(id)}</AlertTitle>
-                <AlertDescription>It can take a minute to arrive. Use it to set a new password.</AlertDescription>
-              </Alert>
+              <form noValidate onSubmit={updatePassword}>
+                <FieldGroup className="gap-4">
+                  <Alert>
+                    <CheckCircle2Icon className="text-success-foreground!" />
+                    <AlertTitle>Code sent to {normaliseIdentifier(id)}</AlertTitle>
+                    <AlertDescription>It can take a minute to arrive. Use it to set a new password.</AlertDescription>
+                  </Alert>
+                  <Field data-invalid={!!codeErr || undefined} className="gap-2">
+                    <FieldLabel htmlFor="rs-code">6-digit code</FieldLabel>
+                    <Input id="rs-code" ref={codeRef} inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="123456" value={code}
+                      onChange={(e) => setCode(e.target.value)} onBlur={() => setResetTouched((t) => ({ ...t, code: true }))}
+                      aria-invalid={!!codeErr || undefined} aria-describedby={codeErr ? "rs-code-error" : undefined} />
+                    <FieldError id="rs-code-error">{codeErr}</FieldError>
+                  </Field>
+                  <Field data-invalid={!!newPwErr || undefined} className="gap-2">
+                    <FieldLabel htmlFor="rs-password">New password</FieldLabel>
+                    <PasswordInput id="rs-password" inputRef={newPwRef} value={newPw} autoComplete="new-password"
+                      onChange={setNewPw} onBlur={() => setResetTouched((t) => ({ ...t, pw: true }))}
+                      error={newPwErr} describedBy={newPwErr ? "rs-password-error" : "rs-password-hint"} />
+                    {newPwErr ? <FieldError id="rs-password-error">{newPwErr}</FieldError> : <FieldDescription id="rs-password-hint">At least 8 characters</FieldDescription>}
+                  </Field>
+                  <Button type="submit" className="w-full">Update password</Button>
+                  <Button type="button" variant="ghost" className="w-full" onClick={() => go("reset")}>Send a new code</Button>
+                </FieldGroup>
+              </form>
             )}
           </CardContent>
           <CardFooter className="justify-center">
@@ -358,6 +400,12 @@ export function LoginPage() {
         <CardContent>
           <form noValidate onSubmit={login}>
             <FieldGroup className="gap-4">
+              {updated && !failed && (
+                <Alert role="status">
+                  <CheckCircle2Icon className="text-success-foreground!" />
+                  <AlertTitle>Password updated. Log in with your new password.</AlertTitle>
+                </Alert>
+              )}
               {failed && (
                 <Alert variant="destructive">
                   <AlertCircleIcon />

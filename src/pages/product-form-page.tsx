@@ -20,6 +20,7 @@ import { Page, PageColumn, PageGrid, PageHeader } from "@/components/app/page"
 import { ChoiceCardGroup } from "@/components/app/choice-card-group"
 import { Money, MoneyInput, parseAmount } from "@/components/app/money"
 import { MobileSaveBar } from "@/components/app/save-bar"
+import { navigateTo, useUnsavedGuard } from "@/components/app/unsaved-guard"
 import { cn } from "@/lib/utils"
 import { slugify } from "@/lib/bd"
 import { uid, useApp } from "@/store/store"
@@ -81,6 +82,7 @@ export function ProductFormPage({ id }: { id?: string }) {
     window.addEventListener("beforeunload", h)
     return () => window.removeEventListener("beforeunload", h)
   }, [dirty])
+  useUnsavedGuard(dirty)
 
   const priceN = parseAmount(price)
   const compareN = parseAmount(compare)
@@ -146,17 +148,17 @@ export function ProductFormPage({ id }: { id?: string }) {
     set((s) => ({ ...s, products: existing ? s.products.map((p) => (p.id === saved.id ? saved : p)) : [saved, ...s.products] }))
     setDirty(false)
     toast.success(status === "active" ? "Product saved and live in your store" : "Product saved as draft")
-    window.location.hash = "products"
+    navigateTo("products")
   }
   const archive = () => {
     if (!existing) return
     const next = existing.status === "archived" ? "draft" : "archived"
     set((s) => ({ ...s, products: s.products.map((p) => (p.id === existing.id ? { ...p, status: next } : p)) }))
     toast(next === "archived" ? "Product archived. It is hidden from your store." : "Product restored as draft")
-    window.location.hash = "products"
+    navigateTo("products")
   }
   const reset = () => {
-    if (existing) { setDirty(false); window.location.hash = "products"; return }
+    if (existing) { setDirty(false); navigateTo("products"); return }
     setPhotos([]); setTitle(""); setDesc(""); setPrice(""); setCompare(""); setStock(""); setHasVariants(false); setSizes([]); setColours([])
     setVariantStock({}); setVariantPrice({}); setPicked([]); setTouched({}); setSubmitted(false); setDirty(false); setSlugEdit(null); setStatus("draft")
   }
@@ -415,6 +417,18 @@ export function ProductFormPage({ id }: { id?: string }) {
           </Card>
         </PageColumn>
       </PageGrid>
+
+      {existing && (
+        <Card className="md:hidden">
+          <CardHeader>
+            <CardTitle>{existing.status === "archived" ? "Restore product" : "Archive product"}</CardTitle>
+            <CardDescription>{existing.status === "archived" ? "Bring it back as a draft. You can make it active again later." : "Hide it from your store without deleting it. Past orders keep it."}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" onClick={archive}>{existing.status === "archived" ? "Restore" : "Archive"}</Button>
+          </CardContent>
+        </Card>
+      )}
 
       <MobileSaveBar dirty={dirty} onDiscard={() => setConfirmDiscard(true)} onSave={save} />
 

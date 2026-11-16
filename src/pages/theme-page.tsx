@@ -15,6 +15,7 @@ import { StoreHomeContent } from "@/pages/storefront-pages"
 import { useApp } from "@/store/store"
 import type { ThemeSettings } from "@/store/types"
 import { cn } from "@/lib/utils"
+import { useUnsavedGuard } from "@/components/app/unsaved-guard"
 
 type TextKey = "announcement" | "heroTitle" | "heroSubtitle" | "heroCta"
 
@@ -47,6 +48,7 @@ export function ThemePage() {
     window.addEventListener("beforeunload", h)
     return () => window.removeEventListener("beforeunload", h)
   }, [dirty])
+  useUnsavedGuard(dirty)
 
   const errors = Object.fromEntries((Object.keys(LIMITS) as TextKey[]).map((k) => [k, errorFor(k, draft[k])])) as Record<TextKey, string | null>
   const hasErrors = Object.values(errors).some(Boolean)

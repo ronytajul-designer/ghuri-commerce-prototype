@@ -134,8 +134,8 @@ function ActiveHome() {
 
   const tasks = [
     { key: "confirm", count: toConfirm.length, label: "To confirm", hint: data.oldest !== null ? waitingHint(timeAgo(data.oldest, data.now)) : "All confirmed", icon: PhoneCallIcon, href: "#orders", urgent: toConfirm.length > 0 },
-    { key: "ship", count: toShip.length, label: "To ship", hint: toShip.length ? "Book a courier" : "Nothing to ship", icon: TruckIcon, href: "#orders", urgent: false },
-    { key: "returns", count: returns.length, label: "Returns", hint: "Restock when it’s back", icon: Undo2Icon, href: "#orders", urgent: false },
+    { key: "ship", count: toShip.length, label: "To ship", hint: toShip.length ? "Book a courier" : "Nothing to ship", icon: TruckIcon, href: "#orders-ship", urgent: false },
+    { key: "returns", count: returns.length, label: "Returns", hint: "Restock when it’s back", icon: Undo2Icon, href: "#orders-returned", urgent: false },
     { key: "stock", count: lowStock.length, label: "Low stock", hint: "2 or fewer left", icon: PackageIcon, href: "#products", urgent: false },
   ]
 
@@ -245,7 +245,7 @@ function ActiveHome() {
                   {recent.map((o) => (
                     <TableRow key={o.id} className="cursor-pointer" onClick={() => { window.location.hash = `order-${o.id}` }}>
                       <TableCell><a href={`#order-${o.id}`} className="font-medium hover:underline" onClick={(e) => e.stopPropagation()}>#{o.id}</a></TableCell>
-                      <TableCell><div className="font-medium">{o.name}</div><div className="text-xs text-muted-foreground tabular-nums">{o.phone} · {o.district}</div></TableCell>
+                      <TableCell><div className="font-medium">{o.name}</div><div className="text-xs text-muted-foreground tabular-nums">{o.phone} · {o.district}</div><div className="mt-2 sm:hidden"><OrderStatusBadge status={o.status} /></div></TableCell>
                       <TableCell className="hidden sm:table-cell"><OrderStatusBadge status={o.status} /></TableCell>
                       <TableCell className="text-right"><Money value={orderTotal(o)} /></TableCell>
                     </TableRow>

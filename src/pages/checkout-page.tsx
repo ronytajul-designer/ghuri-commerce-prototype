@@ -16,7 +16,7 @@ import { Money } from "@/components/app/money"
 import { ProductThumb } from "@/components/app/product-thumb"
 import { DISTRICTS, cleanPhone, isValidBdPhone, thanasOf, toLatinDigits } from "@/lib/bd"
 import { cn } from "@/lib/utils"
-import { nextOrderId, placeOrder, taka, useApp, zoneFor } from "@/store/store"
+import { nextOrderId, placeOrder, stockFor, taka, useApp, zoneFor } from "@/store/store"
 import type { AppState, Zone } from "@/store/types"
 import { StoreFrame, cartLines } from "@/pages/storefront-pages"
 
@@ -73,9 +73,10 @@ function SummaryBody({ lines, sub, quote, advance, total }: { lines: Line[]; sub
       <div className="flex flex-col gap-2 text-sm">
         <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><Money value={sub} /></div>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-muted-foreground">Delivery{quote.zone && quote.free === "none" ? ` (${quote.zone.name})` : ""}</span>
+          <span className="text-muted-foreground">Delivery{quote.free === "no-zones" ? ": to be confirmed" : ""}{quote.zone && quote.free === "none" ? ` (${quote.zone.name})` : ""}</span>
           {!quote.known ? <span className="text-muted-foreground">Pick district</span>
-            : quote.free !== "none" ? <Badge variant="success">Free delivery</Badge>
+            : quote.free === "no-zones" ? <span className="text-muted-foreground">To be confirmed</span>
+            : quote.free === "threshold" ? <Badge variant="success">Free delivery</Badge>
             : quote.uncovered ? <span className="text-muted-foreground">Seller confirms</span>
             : <Money value={quote.fee} />}
         </div>
@@ -143,6 +144,7 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
   const [touched, setTouched] = useState<Partial<Record<FieldKey, boolean>>>({})
   const [tried, setTried] = useState(false)
   const [summaryOpen, setSummaryOpen] = useState(false)
+  const [stockIssue, setStockIssue] = useState<{ title: string; left: number }[] | null>(null)
   const touch = (k: FieldKey) => setTouched((t) => (t[k] ? t : { ...t, [k]: true }))
 
   const sub = lines.reduce((s, l) => s + l.price * l.line.qty, 0)
@@ -175,6 +177,10 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
     setTried(true)
+    // Re-check stock against the latest store state before placing.
+    const short = lines.filter((l) => l.line.qty > stockFor(l.product, l.variant?.key))
+    if (short.length) { setStockIssue(short.map((l) => ({ title: [l.product.title, l.variant?.label].filter(Boolean).join(", "), left: stockFor(l.product, l.variant?.key) }))); return }
+    setStockIssue(null)
     if (invalidKeys.length) {
       document.getElementById(invalidKeys[0])?.focus()
       return
@@ -204,8 +210,19 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
       : { value: p, title: WALLET_NAME[p], description: <>Pay <Money value={total} /> now from your {WALLET_NAME[p]} account.</> })
 
   const placeLabel = quote.known ? <>Place order · <Money value={advanceMode ? advance : total} />{advanceMode ? " now" : ""}</> : <>Place order</>
-  const actions = (
-    <div className="flex flex-col gap-4">
+  const alerts = (
+    <>
+      {stockIssue && (
+        <Alert variant="destructive" role="alert">
+          <AlertTitle>Not enough stock to place your order</AlertTitle>
+          <AlertDescription>
+            <ul className="list-disc pl-4">
+              {stockIssue.map((x) => <li key={x.title}>{x.title}: {x.left === 0 ? "sold out" : `only ${x.left} left`}</li>)}
+            </ul>
+            <a href="#cart" className="underline underline-offset-4">Change quantities in your cart</a>
+          </AlertDescription>
+        </Alert>
+      )}
       {tried && invalidKeys.length > 0 && (
         <Alert variant="destructive" role="alert">
           <AlertTitle>Fix {invalidKeys.length === 1 ? "this" : `these ${invalidKeys.length}`} to place your order</AlertTitle>
@@ -216,6 +233,11 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
           </AlertDescription>
         </Alert>
       )}
+    </>
+  )
+  const actions = (
+    <div className="flex flex-col gap-4">
+      <div className="hidden flex-col gap-4 lg:flex">{alerts}</div>
       <Button type="submit" size="lg" className="w-full">{placeLabel}</Button>
       <p className="text-center text-sm text-muted-foreground">
         {pay !== "cod" ? `Paid by ${WALLET_NAME[pay]}. The seller checks your transaction ID and calls to confirm.`
@@ -237,7 +259,7 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
     <Alert aria-live="polite">
       <TruckIcon />
       <AlertDescription className="text-foreground">
-        {quote.free === "no-zones" ? <span className="flex flex-wrap items-center gap-2"><Badge variant="success">Free delivery</Badge>All over Bangladesh</span>
+        {quote.free === "no-zones" ? <span>The seller will confirm the delivery charge by phone</span>
           : quote.free === "threshold" ? <span className="flex flex-wrap items-center gap-2"><Badge variant="success">Free delivery</Badge>{quote.zone ? <>{quote.zone.name} · arrives in {quote.zone.eta}</> : <>Orders over <Money value={state.freeDeliveryOver ?? 0} /></>}</span>
           : quote.uncovered ? <span>The seller confirms the delivery charge for {district} when they call.</span>
           : <span><span className="font-medium">{quote.zone!.name}</span> · <Money value={quote.fee} /> delivery · arrives in {quote.zone!.eta}</span>}
@@ -254,6 +276,7 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
             <span className="flex items-center gap-2 text-sm text-muted-foreground"><LockIcon className="size-4" aria-hidden="true" />Secure checkout</span>
           </div>
 
+          {(stockIssue || (tried && invalidKeys.length > 0)) && <div className="flex flex-col gap-4 lg:hidden">{alerts}</div>}
           {/* Mobile: collapsed summary at top */}
           <Collapsible open={summaryOpen} onOpenChange={setSummaryOpen} className="lg:hidden">
             <Card className="gap-0 py-0">
@@ -428,6 +451,7 @@ function Confirmation({ id, phone, district, eta, total, paid, fee, pay }: { id:
               {pay !== "cod" ? <>You paid <Money value={paid} /> by {WALLET_NAME[pay]}. The seller checks it before sending.</>
                 : paid > 0 ? <>You paid the <Money value={paid} /> delivery charge in advance. Keep the exact amount ready.</>
                 : fee > 0 ? <>Includes <Money value={fee} /> delivery. Keep the exact amount ready.</>
+                : state.zones.length === 0 ? <>The seller will confirm the delivery charge by phone.</>
                 : <>Delivery is free. Keep the exact amount ready.</>}
             </p>
           </CardContent>

@@ -18,11 +18,13 @@ import { SettingsLayout } from "@/components/app/settings-layout"
 import { ChoiceCardGroup } from "@/components/app/choice-card-group"
 import { Money, MoneyInput, parseAmount } from "@/components/app/money"
 import { cleanPhone, isValidBdPhone } from "@/lib/bd"
+import { useUnsavedGuard } from "@/components/app/unsaved-guard"
 import { uid, useApp } from "@/store/store"
 import type { Member, Payments, Zone } from "@/store/types"
 
 /** Save bar shared by settings forms: shows only when something changed. */
 function SaveRow({ dirty, onSave, onReset }: { dirty: boolean; onSave: () => void; onReset: () => void }) {
+  useUnsavedGuard(dirty)
   return (
     <div className="flex items-center justify-end gap-2">
       {dirty && <span className="mr-auto text-sm text-muted-foreground">Unsaved changes</span>}
@@ -41,15 +43,18 @@ export function GeneralSettingsPage() {
   const f = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value })
   const phoneBad = !!form.phone && !isValidBdPhone(cleanPhone(form.phone))
   const waBad = !!form.whatsapp && !isValidBdPhone(cleanPhone(form.whatsapp))
+  const [nameTouched, setNameTouched] = useState(false)
+  const nameBad = nameTouched && !form.name.trim()
   return (
     <SettingsLayout active="settings-general" title="General" description="What shoppers see about your store, and how they reach you.">
       <Card>
         <CardHeader><CardTitle>Store details</CardTitle></CardHeader>
         <CardContent>
           <FieldGroup>
-            <Field>
+            <Field data-invalid={nameBad || undefined}>
               <FieldLabel htmlFor="sname">Store name</FieldLabel>
-              <Input id="sname" value={form.name} onChange={f("name")} />
+              <Input id="sname" value={form.name} onChange={f("name")} onBlur={() => setNameTouched(true)} aria-invalid={nameBad || undefined} aria-describedby={nameBad ? "sname-error" : undefined} />
+              {nameBad && <FieldError id="sname-error">Enter your store name. Shoppers see it at the top of your store.</FieldError>}
             </Field>
             <Field>
               <FieldLabel htmlFor="shandle">Store address</FieldLabel>
@@ -72,13 +77,13 @@ export function GeneralSettingsPage() {
             <div className="grid gap-6 sm:grid-cols-2">
               <Field data-invalid={phoneBad || undefined}>
                 <FieldLabel htmlFor="sphone">Phone</FieldLabel>
-                <Input id="sphone" type="tel" inputMode="tel" placeholder="01XXXXXXXXX" value={form.phone} onChange={f("phone")} aria-invalid={phoneBad || undefined} />
-                {phoneBad && <FieldError>Enter an 11-digit number starting with 01.</FieldError>}
+                <Input id="sphone" type="tel" inputMode="tel" placeholder="01XXXXXXXXX" value={form.phone} onChange={f("phone")} aria-invalid={phoneBad || undefined} aria-describedby={phoneBad ? "sphone-error" : undefined} />
+                {phoneBad && <FieldError id="sphone-error">Enter an 11-digit number starting with 01.</FieldError>}
               </Field>
               <Field data-invalid={waBad || undefined}>
                 <FieldLabel htmlFor="swa">WhatsApp</FieldLabel>
-                <Input id="swa" type="tel" inputMode="tel" placeholder="01XXXXXXXXX" value={form.whatsapp} onChange={f("whatsapp")} aria-invalid={waBad || undefined} />
-                {waBad ? <FieldError>Enter an 11-digit number starting with 01.</FieldError> : <FieldDescription>Adds a WhatsApp button to your store.</FieldDescription>}
+                <Input id="swa" type="tel" inputMode="tel" placeholder="01XXXXXXXXX" value={form.whatsapp} onChange={f("whatsapp")} aria-invalid={waBad || undefined} aria-describedby="swa-help" />
+                {waBad ? <FieldError id="swa-help">Enter an 11-digit number starting with 01.</FieldError> : <FieldDescription id="swa-help">Adds a WhatsApp button to your store.</FieldDescription>}
               </Field>
             </div>
             <Field>
@@ -102,8 +107,9 @@ export function GeneralSettingsPage() {
         </CardContent>
       </Card>
       <SaveRow dirty={dirty} onReset={() => setForm(state.store)} onSave={() => {
+        if (!form.name.trim()) { setNameTouched(true); document.getElementById("sname")?.focus(); toast.error("Enter your store name to save."); return }
         if (phoneBad || waBad) { toast.error("Fix the phone numbers to save."); return }
-        set((s) => ({ ...s, store: { ...form, phone: form.phone && cleanPhone(form.phone), whatsapp: form.whatsapp && cleanPhone(form.whatsapp) } }))
+        set((s) => ({ ...s, store: { ...form, name: form.name.trim(), phone: form.phone && cleanPhone(form.phone), whatsapp: form.whatsapp && cleanPhone(form.whatsapp) } }))
         toast.success("Store details saved")
       }} />
     </SettingsLayout>
@@ -448,22 +454,51 @@ export function AiSettingsPage() {
 
 /* ---------- Account ---------- */
 
+const ACCOUNT_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
 export function AccountSettingsPage() {
   const { state, set } = useApp()
   const acc = state.account ?? { name: "", phone: "", email: "" }
   const [form, setForm] = useState(acc)
   const [lang, setLang] = useState("en")
   const dirty = JSON.stringify(form) !== JSON.stringify(acc)
+  const [tried, setTried] = useState(false)
+  const errs = {
+    name: !form.name.trim() ? "Enter your name." : "",
+    phone: !form.phone.trim() ? "Enter your mobile number. You use it to log in." : !isValidBdPhone(cleanPhone(form.phone)) ? "Enter an 11-digit number starting with 01, like 01711223344." : "",
+    email: form.email.trim() && !ACCOUNT_EMAIL_RE.test(form.email.trim()) ? "Enter a valid email, like name@example.com, or leave it empty." : "",
+  }
+  const err = (k: keyof typeof errs) => (tried ? errs[k] : "")
+  const fieldProps = (k: keyof typeof errs) => ({ "aria-invalid": !!err(k) || undefined, "aria-describedby": err(k) ? `a${k}-error` : k === "phone" ? "aphone-help" : undefined })
+  const saveAccount = () => {
+    setTried(true)
+    const first = (Object.keys(errs) as (keyof typeof errs)[]).find((k) => errs[k])
+    if (first) { document.getElementById(`a${first}`)?.focus(); toast.error("Fix the highlighted fields to save."); return }
+    const clean = { name: form.name.trim(), phone: cleanPhone(form.phone), email: form.email.trim() }
+    set((s) => ({ ...s, account: clean })); setForm(clean); setTried(false); toast.success("Account saved")
+  }
   return (
     <SettingsLayout active="settings-account" title="Account" description="Your own login details. Not shown to shoppers.">
       <Card>
         <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
         <CardContent>
           <FieldGroup>
-            <Field><FieldLabel htmlFor="aname">Name</FieldLabel><Input id="aname" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
+            <Field data-invalid={!!err("name") || undefined}>
+              <FieldLabel htmlFor="aname">Name</FieldLabel>
+              <Input id="aname" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} {...fieldProps("name")} />
+              {err("name") && <FieldError id="aname-error">{err("name")}</FieldError>}
+            </Field>
             <div className="grid gap-6 sm:grid-cols-2">
-              <Field><FieldLabel htmlFor="aphone">Mobile number</FieldLabel><Input id="aphone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /><FieldDescription>Used to log in and for order SMS.</FieldDescription></Field>
-              <Field><FieldLabel htmlFor="aemail">Email <span className="font-normal text-muted-foreground">(optional)</span></FieldLabel><Input id="aemail" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
+              <Field data-invalid={!!err("phone") || undefined}>
+                <FieldLabel htmlFor="aphone">Mobile number</FieldLabel>
+                <Input id="aphone" type="tel" inputMode="tel" placeholder="01XXXXXXXXX" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} {...fieldProps("phone")} />
+                {err("phone") ? <FieldError id="aphone-error">{err("phone")}</FieldError> : <FieldDescription id="aphone-help">Used to log in and for order SMS.</FieldDescription>}
+              </Field>
+              <Field data-invalid={!!err("email") || undefined}>
+                <FieldLabel htmlFor="aemail">Email <span className="font-normal text-muted-foreground">(optional)</span></FieldLabel>
+                <Input id="aemail" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} {...fieldProps("email")} />
+                {err("email") && <FieldError id="aemail-error">{err("email")}</FieldError>}
+              </Field>
             </div>
           </FieldGroup>
         </CardContent>
@@ -474,7 +509,7 @@ export function AccountSettingsPage() {
           <ChoiceCardGroup name="lang" columns={2} aria-label="Dashboard language" value={lang} onValueChange={(v) => { setLang(v); if (v === "bn") toast("বাংলা সংস্করণ শীঘ্রই আসছে (prototype)") }} choices={[{ value: "en", title: "English" }, { value: "bn", title: "বাংলা" }]} />
         </CardContent>
       </Card>
-      <SaveRow dirty={dirty} onReset={() => setForm(acc)} onSave={() => { set((s) => ({ ...s, account: form })); toast.success("Account saved") }} />
+      <SaveRow dirty={dirty} onReset={() => { setForm(acc); setTried(false) }} onSave={saveAccount} />
     </SettingsLayout>
   )
 }

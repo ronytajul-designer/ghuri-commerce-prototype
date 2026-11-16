@@ -16,10 +16,10 @@ import { BookCourierDialog } from "@/components/app/order-dialogs"
 import { type OrderStatus, STAGES, total } from "@/data/orders"
 import { timeAgo, useOrderActions, useOrders } from "@/store/store"
 
-export function OrdersListPage() {
+export function OrdersListPage({ initialStage = "confirm" }: { initialStage?: OrderStatus }) {
   const orders = useOrders()
   const { book: onBook } = useOrderActions()
-  const [stage, setStage] = useState<OrderStatus>("confirm")
+  const [stage, setStage] = useState<OrderStatus>(initialStage)
   const [query, setQuery] = useState("")
   const [checked, setChecked] = useState<Set<number>>(new Set())
   const [booking, setBooking] = useState(false)

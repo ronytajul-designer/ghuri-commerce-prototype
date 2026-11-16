@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { ThemeProvider, useAppTheme } from "@/components/mode-toggle"
 import { AppShell, type NavKey } from "@/components/app/app-shell"
 import { AppProvider, useApp } from "@/store/store"
+import { interceptHashChange, UnsavedGuardDialog } from "@/components/app/unsaved-guard"
+import { STAGES, type OrderStatus } from "@/data/orders"
 import { CheckoutPage } from "@/pages/checkout-page"
 import { OrderDetailPage } from "@/pages/order-detail-page"
 import { OrdersListPage } from "@/pages/orders-list-page"
@@ -22,14 +24,14 @@ import { LoginPage, SignupPage } from "@/pages/auth-pages"
 /**
  * Routes are plain hash names so they also work inside a Claude artifact:
  * admin:      #home #orders #order-1011 #products #product-new #product-p1 #collections #collection-new #collection-c1
- *             #customers #customer-01711223344 #theme #settings-general|shipping|payments|team|domains|ai|account
+ *             #orders-ship #orders-returned (any stage) #customers #customer-01711223344 #theme #settings-general|shipping|payments|team|domains|ai|account
  * storefront: #store #store-p-p1 #cart #checkout   auth: #login #signup
  */
 function useHashRoute() {
   const read = () => window.location.hash.replace("#", "") || "home"
   const [route, setRoute] = useState(read)
   useEffect(() => {
-    const on = () => { setRoute(read()); window.scrollTo(0, 0) }
+    const on = (e: HashChangeEvent) => { if (!interceptHashChange(e)) return; setRoute(read()); window.scrollTo(0, 0) }
     window.addEventListener("hashchange", on)
     return () => window.removeEventListener("hashchange", on)
   }, [])
@@ -62,6 +64,7 @@ function Shell() {
   else if (route === "cart") content = <CartPage />
   else if (route === "checkout") content = <CheckoutPage />
   else if (route === "orders") content = admin("orders", <OrdersListPage />)
+  else if (m(/^orders-(\w+)$/) && STAGES.includes(m(/^orders-(\w+)$/) as OrderStatus)) content = admin("orders", <OrdersListPage key={route} initialStage={m(/^orders-(\w+)$/) as OrderStatus} />)
   else if (m(/^order-(\d+)$/)) content = admin("orders", <OrderDetailPage key={route} id={Number(m(/^order-(\d+)$/))} />)
   else if (route === "products") content = admin("products", <ProductsPage />)
   else if (route === "product-new") content = admin("products", <ProductFormPage key={route} />)
@@ -84,7 +87,8 @@ function Shell() {
   return (
     <TooltipProvider>
       {content}
-      <Toaster position="bottom-center" theme={theme} />
+      <UnsavedGuardDialog />
+      <Toaster position="bottom-center" theme={theme} mobileOffset={{ bottom: 80 }} />
     </TooltipProvider>
   )
 }

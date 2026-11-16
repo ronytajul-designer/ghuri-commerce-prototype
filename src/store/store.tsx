@@ -101,6 +101,8 @@ export const orderTotal = (o: Order) => subtotal(o) + o.fee
 export const codDue = (o: Order) => (o.pay === "COD" ? orderTotal(o) - (o.advancePaid ?? 0) : 0)
 export const nextOrderId = (s: AppState) => Math.max(1000, ...s.orders.map((o) => o.id)) + 1
 export const productStock = (p: Product) => (p.variants.length ? p.variants.reduce((s, v) => s + v.stock, 0) : p.stock)
+/** Units available for a product, or for one variant of it (by variant key). */
+export const stockFor = (p: Product, variantKey?: string) => (p.variants.length ? (p.variants.find((v) => v.key === variantKey)?.stock ?? 0) : p.stock)
 export const zoneFor = (zones: Zone[], district: string) => zones.find((z) => z.districts === (district === "Dhaka" ? "dhaka" : "rest"))
 export const taka = (n: number) => "৳" + Math.round(n).toLocaleString("en-IN")
 export const uid = () => Math.random().toString(36).slice(2, 9)
@@ -136,7 +138,23 @@ export function useOrderActions() {
   return {
     confirm: (id: number) => patch(id, (o) => ({ ...o, status: "ship" }), "Confirmed by phone (by Tajul)"),
     noAnswer: (id: number) => set((s) => ({ ...s, orders: s.orders.map((o) => o.id === id ? { ...o, noAnswer: o.noAnswer + 1, log: [{ at: Date.now(), text: `Call attempt ${o.noAnswer + 1}: no answer (by Tajul)` }, ...o.log] } : o) })),
-    cancel: (id: number, reason: string) => patch(id, (o) => ({ ...o, status: "cancelled", cancelReason: reason }), `Cancelled: ${reason} (by Tajul)`),
+    cancel: (id: number, reason: string) => set((s) => {
+      const order = s.orders.find((o) => o.id === id)
+      if (!order || order.status === "cancelled") return s
+      const products = s.products.map((p) => {
+        const lines = order.items.filter((i) => i.productId === p.id)
+        if (!lines.length) return p
+        const qty = lines.reduce((n, l) => n + l.qty, 0)
+        const hasVariant = p.variants.length > 0
+        return {
+          ...p,
+          sold: Math.max(0, p.sold - qty),
+          stock: hasVariant ? p.stock : p.stock + qty,
+          variants: p.variants.map((v) => { const back = lines.filter((x) => x.variant === v.label).reduce((n, l) => n + l.qty, 0); return back ? { ...v, stock: v.stock + back } : v }),
+        }
+      })
+      return { ...s, products, orders: s.orders.map((o) => (o.id === id ? { ...o, status: "cancelled", cancelReason: reason, log: [{ at: Date.now(), text: `Cancelled: ${reason}. Items returned to stock (by Tajul)` }, ...o.log] } : o)) }
+    }),
     book: (ids: number[], courier: Courier) => set((s) => ({
       ...s,
       orders: s.orders.map((o) => {
