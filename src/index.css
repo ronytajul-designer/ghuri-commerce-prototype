@@ -51,6 +51,20 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    --button-secondary-hover: var(--button-secondary-hover);
+    --button-secondary: var(--button-secondary);
+    --button-shadow: var(--button-shadow);
+    --color-button-edge: var(--button-edge);
+    --color-button-foreground: var(--button-foreground);
+    --button-hover: var(--button-hover);
+    --button: var(--button);
+    --color-negative: var(--negative);
+    --color-positive: var(--positive);
+    --color-brand-foreground: var(--brand-foreground);
+    --color-brand: var(--brand);
+    --color-surface-raised: var(--surface-raised);
+    --color-surface-inset: var(--surface-inset);
+    --color-surface: var(--surface);
 }
 
 :root {
@@ -92,6 +106,20 @@
     --success-foreground: #1c6e31;
     --warning-foreground: #9a3a00;
     --info-foreground: #0058b0;
+    --surface: oklch(0.948 0.002 286);
+    --surface-inset: oklch(1 0 0);
+    --surface-raised: oklch(0.912 0.003 286);
+    --brand: #0071e3;
+    --brand-foreground: #ffffff;
+    --positive: #248a3d;
+    --negative: #d70015;
+    --button: linear-gradient(0deg, #fff 0%, #e6e6e6 100%);
+    --button-hover: linear-gradient(0deg, #fff 0%, #eeeeee 100%);
+    --button-foreground: #111111;
+    --button-edge: rgba(0, 0, 0, 0.1);
+    --button-shadow: 0 0 #0000;
+    --button-secondary: linear-gradient(180deg, #e2e2e2 0%, #ececec 100%);
+    --button-secondary-hover: linear-gradient(180deg, #dadada 0%, #e4e4e4 100%);
 }
 
 .dark {
@@ -133,8 +161,21 @@
     --success-foreground: #6fe38a;
     --warning-foreground: #ffc266;
     --info-foreground: #7cbcff;
+    --surface: oklch(0.212 0 0);
+    --surface-inset: oklch(0.172 0 0);
+    --surface-raised: oklch(0.265 0 0);
+    --brand: #0a84ff;
+    --brand-foreground: #ffffff;
+    --positive: #30d158;
+    --negative: #ff453a;
+    --button: linear-gradient(0deg, #fff 0%, #ababab 100%);
+    --button-hover: linear-gradient(0deg, #fff 0%, #c2c2c2 100%);
+    --button-foreground: #111111;
+    --button-edge: rgba(255, 255, 255, 0.5);
+    --button-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+    --button-secondary: linear-gradient(180deg, #1d1d1d 0%, #262626 100%);
+    --button-secondary-hover: linear-gradient(180deg, #242424 0%, #2d2d2d 100%);
 }
-
 
 @layer base {
   * {
