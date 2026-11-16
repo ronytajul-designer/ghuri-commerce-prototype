@@ -21,6 +21,7 @@ import {
 import { CartPage, StoreHomePage, StoreProductPage } from "@/pages/storefront-pages"
 import { LoginPage, SignupPage } from "@/pages/auth-pages"
 import { TuffuiPreviewPage } from "@/pages/tuffui-preview-page"
+import { HomeTuffuiPage } from "@/pages/home-tuffui-page"
 
 /**
  * Routes are plain hash names so they also work inside a Claude artifact:
@@ -75,6 +76,7 @@ function Shell() {
   else if (m(/^collection-(.+)$/)) content = admin("collections", <CollectionFormPage key={route} id={m(/^collection-(.+)$/)} />)
   else if (route === "customers") content = admin("customers", <CustomersPage />)
   else if (m(/^customer-(.+)$/)) content = admin("customers", <CustomerDetailPage key={route} phone={m(/^customer-(.+)$/)!} />)
+  else if (route === "home-tuffui") content = admin("home", <HomeTuffuiPage />)
   else if (route === "tuffui") content = admin("home", <TuffuiPreviewPage />)
   else if (route === "theme") content = admin("theme", <ThemePage />)
   else if (route === "settings" || route === "settings-general") content = admin("settings", <GeneralSettingsPage />)
