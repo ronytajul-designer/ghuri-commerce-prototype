@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from "react"
+import { TUFF } from "@/components/app/page-tuffui"
 import { toast } from "sonner"
 import { motion, MotionConfig } from "motion/react"
 import {
@@ -30,7 +31,7 @@ function StoreHeaderTuffui({ back }: { back?: { href: string; label: string } })
   const count = state.cart.reduce((n, l) => n + l.qty, 0)
   return (
     <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:px-8">
+      <div className={cn(TUFF.frame, "flex h-16 items-center justify-between gap-4")}>
         <div className="flex min-w-0 items-center gap-2">
           {back && <IconButton icon={outline(ArrowLeft)} label={back.label} size="md" onClick={() => go(back.href)} />}
           <a href="#store-tuffui" className="truncate rounded-full px-2 font-semibold tracking-wide uppercase outline-none focus-visible:ring-2 focus-visible:ring-ring">{state.store.name}</a>
@@ -51,8 +52,8 @@ function StoreHeaderTuffui({ back }: { back?: { href: string; label: string } })
 function StoreFooterTuffui() {
   const { state } = useApp()
   return (
-    <footer className="mt-auto px-4 pb-4 md:px-8">
-      <Shell className="mx-auto max-w-6xl">
+    <footer className={cn(TUFF.frame, "mt-auto pb-4")}>
+      <Shell>
         <Panel className="grid gap-6 p-6 text-sm md:grid-cols-3">
           <div className="flex flex-col gap-2"><span className="font-semibold uppercase">{state.store.name}</span>{state.store.address && <span className="text-muted-foreground">{state.store.address}</span>}</div>
           <div className="flex flex-col gap-2">
@@ -159,7 +160,7 @@ function StoreHomeContentTuffui({ state, theme }: { state: AppState; theme: Them
   return (
     <main className="flex flex-col">
       {theme.announcement && <div className="bg-foreground px-4 py-2 text-center text-sm text-background">{theme.announcement}</div>}
-      <section className="mx-auto w-full max-w-6xl px-4 pt-4 md:px-8 md:pt-8">
+      <section className={cn(TUFF.frame, "pt-4 md:pt-8")}>
         <Shell>
           <Panel className="flex flex-col items-start gap-4 px-6 py-12 md:px-12 md:py-16">
             <h1 className="max-w-2xl text-4xl font-semibold tracking-tighter text-balance md:text-5xl">{theme.heroTitle}</h1>
@@ -173,7 +174,7 @@ function StoreHomeContentTuffui({ state, theme }: { state: AppState; theme: Them
           </ul>
         </Shell>
       </section>
-      <section id="products-grid" className="mx-auto flex w-full max-w-6xl scroll-mt-16 flex-col gap-6 px-4 py-8 md:px-8">
+      <section id="products-grid" className={cn(TUFF.frame, "flex scroll-mt-16 flex-col gap-6 py-8")}>
         {theme.showCollections && collections.length > 0 && (
           <ChipGroup label="Collections" value={col} onValueChange={setCol} options={[{ value: "all", label: "All" }, ...collections.map((c) => ({ value: c.id, label: c.title }))]} />
         )}
@@ -206,7 +207,7 @@ export function StoreProductTuffuiPage({ id }: { id: string }) {
   const [tried, setTried] = useState(false)
   if (!p) return (
     <StoreFrameTuffui back={{ href: "store-tuffui", label: "Back to store" }}>
-      <main className="mx-auto w-full max-w-xl px-4 py-12"><Shell><Panel><EmptyState icon={ShoppingBag} title="This product is not available" action={{ label: "See other products", onClick: () => go("store-tuffui") }} /></Panel></Shell></main>
+      <main className={cn(TUFF.frame, TUFF.block)}><Shell className={TUFF.narrow}><Panel><EmptyState icon={ShoppingBag} title="This product is not available" action={{ label: "See other products", onClick: () => go("store-tuffui") }} /></Panel></Shell></main>
     </StoreFrameTuffui>
   )
 
@@ -244,7 +245,7 @@ export function StoreProductTuffuiPage({ id }: { id: string }) {
 
   return (
     <StoreFrameTuffui back={{ href: "store-tuffui", label: "Back to store" }}>
-      <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-6 md:grid-cols-2 md:px-8 md:py-8">
+      <main className={cn(TUFF.frame, TUFF.block, "grid gap-6 md:grid-cols-2")}>
         <div className="flex min-w-0 flex-col gap-4">
           <Shell className="aspect-square"><Panel className="size-full overflow-hidden">
             {p.photos[photo] && <motion.img key={photo} src={p.photos[photo]} alt={p.title} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={enter} className="size-full object-cover" />}
@@ -313,10 +314,10 @@ export function CartTuffuiPage() {
   const setQty = (i: number, q: number) => set((s) => ({ ...s, cart: q <= 0 ? s.cart.filter((_, n) => n !== i) : s.cart.map((l, n) => (n === i ? { ...l, qty: q } : l)) }))
   return (
     <StoreFrameTuffui back={{ href: "store-tuffui", label: "Continue shopping" }}>
-      <main className="mx-auto grid w-full max-w-5xl items-start gap-6 px-4 py-6 md:px-8 md:py-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <main className={cn(TUFF.frame, TUFF.block, TUFF.grid)}>
         <h1 className="text-3xl font-semibold tracking-tighter lg:col-span-2">Your cart</h1>
         {lines.length === 0 ? (
-          <Shell className="lg:col-span-2"><Panel><EmptyState icon={ShoppingBag} title="Your cart is empty" action={{ label: "Shop now", onClick: () => go("store-tuffui") }} /></Panel></Shell>
+          <Shell className={cn(TUFF.narrow, "lg:col-span-2")}><Panel><EmptyState icon={ShoppingBag} title="Your cart is empty" action={{ label: "Shop now", onClick: () => go("store-tuffui") }} /></Panel></Shell>
         ) : (
           <>
             <Shell className="min-w-0">

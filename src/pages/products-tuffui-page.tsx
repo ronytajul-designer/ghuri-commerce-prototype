@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { motion } from "motion/react"
 import { Image as ImageGlyph, MagnifyingGlass, Package, Plus } from "@phosphor-icons/react"
-import { Page, PageHeader } from "@/components/app/page"
+import { PageTuffui as Page, PageHeaderTuffui as PageHeader } from "@/components/app/page-tuffui"
 import { Money } from "@/components/app/money"
 import { Button as ActionButton } from "@/components/ui/action-button"
 import { DataTable, type DataColumn } from "@/components/ui/data-table"

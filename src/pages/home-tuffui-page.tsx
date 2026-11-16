@@ -4,7 +4,7 @@ import {
   ArrowRight, Bag, CheckCircle, Circle, Package, Phone, Sparkle, Truck, ArrowUUpLeft, Storefront, ListBullets, Coins, Warning, Trophy, ChartBar, CalendarBlank,
 } from "@phosphor-icons/react"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Page, PageColumn, PageGrid, PageHeader } from "@/components/app/page"
+import { PageTuffui as Page, PageColumnTuffui as PageColumn, PageGridTuffui as PageGrid, PageHeaderTuffui as PageHeader } from "@/components/app/page-tuffui"
 import { ShareStoreButtonTuffui as ShareStoreButton } from "@/components/app/share-store-button-tuffui"
 import { outline } from "@/lib/phosphor"
 import { motion } from "motion/react"

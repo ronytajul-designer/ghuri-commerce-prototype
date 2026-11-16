@@ -6,7 +6,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Page, PageColumn, PageGrid, PageHeader } from "@/components/app/page"
+import { PageTuffui as Page, PageColumnTuffui as PageColumn, PageGridTuffui as PageGrid, PageHeaderTuffui as PageHeader } from "@/components/app/page-tuffui"
 import { Money } from "@/components/app/money"
 import { Button as ActionButton } from "@/components/ui/action-button"
 import { Checkbox, Radio, RadioGroup } from "@/components/ui/choice-controls"

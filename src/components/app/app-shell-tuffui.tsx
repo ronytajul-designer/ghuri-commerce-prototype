@@ -11,6 +11,7 @@ import type { NavKey } from "@/components/app/app-shell"
 import { EASE_OUT, enter, exit, spring } from "@/lib/motion-tokens"
 import { outline } from "@/lib/phosphor"
 import { cn } from "@/lib/utils"
+import { TUFF } from "@/components/app/page-tuffui"
 import { toast } from "sonner"
 import { useApp } from "@/store/store"
 
@@ -180,13 +181,15 @@ export function AppShellTuffui({ active, badges, children }: { active: NavKey; b
 
         <div className="flex min-w-0 flex-1 flex-col md:py-2 md:pr-2">
           <div className="flex min-w-0 flex-1 flex-col bg-background md:rounded-[1.375rem]">
-            <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 bg-surface/85 px-4 backdrop-blur md:static md:bg-transparent md:backdrop-blur-none">
+            <header className="sticky top-0 z-10 shrink-0 bg-surface/85 backdrop-blur md:static md:bg-transparent md:backdrop-blur-none">
+              <div className={cn(TUFF.frame, "flex h-14 items-center gap-2")}>
               <IconButton size="md" icon={outline(SidebarIcon)} label="Toggle sidebar" tooltip={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
                 tooltipSide="bottom" tooltipAlign="start" aria-expanded={sidebarOpen} onClick={toggle} />
               <span className="truncate text-sm font-medium md:hidden">{state.store.name}</span>
               <div className="ml-auto flex items-center gap-2">
                 <ActionButton variant="quiet" size="md" icon={outline(ArrowSquareOut)} onClick={() => { window.location.hash = "store-tuffui" }}>View store</ActionButton>
                 <ThemeMenu />
+              </div>
               </div>
             </header>
             {children}

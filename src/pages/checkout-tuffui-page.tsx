@@ -1,4 +1,5 @@
 import { useRef, useState } from "react"
+import { TUFF } from "@/components/app/page-tuffui"
 import { motion, AnimatePresence } from "motion/react"
 import { ArrowCounterClockwise, Check, Lock, ShoppingBag, Truck, Wallet as WalletIcon, WarningCircle } from "@phosphor-icons/react"
 import { Button as ActionButton } from "@/components/ui/action-button"
@@ -110,8 +111,8 @@ export function CheckoutTuffuiPage() {
   if (lines.length === 0) {
     return (
       <StoreFrameTuffui back={{ href: "store-tuffui", label: "Back to store" }}>
-        <main className="mx-auto w-full max-w-xl px-4 py-12">
-          <h1 className="sr-only">Checkout</h1><Shell><Panel><EmptyState icon={ShoppingBag} title="Your cart is empty" action={{ label: "Shop now", onClick: () => go("store-tuffui") }} /></Panel></Shell>
+        <main className={cn(TUFF.frame, TUFF.block)}>
+          <h1 className="sr-only">Checkout</h1><Shell className={TUFF.narrow}><Panel><EmptyState icon={ShoppingBag} title="Your cart is empty" action={{ label: "Shop now", onClick: () => go("store-tuffui") }} /></Panel></Shell>
         </main>
       </StoreFrameTuffui>
     )
@@ -268,7 +269,7 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
   return (
     <StoreFrameTuffui back={{ href: "cart-tuffui", label: "Back to cart" }}>
       <div className="flex-1">
-        <form noValidate onSubmit={submit} className="mx-auto grid w-full max-w-5xl items-start gap-6 px-4 py-6 md:px-8 md:py-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <form noValidate onSubmit={submit} className={cn(TUFF.frame, TUFF.block, TUFF.grid)}>
           <div className="flex flex-wrap items-center justify-between gap-4 lg:col-span-2">
             <h1 className="text-3xl font-semibold tracking-tighter">Checkout</h1>
             <span className="flex items-center gap-2 text-sm text-muted-foreground"><Lock className="size-4" aria-hidden="true" />Secure checkout</span>
@@ -383,7 +384,7 @@ function Confirmation({ id, phone, district, eta, total, paid, fee, pay }: Place
   ]
   return (
     <StoreFrameTuffui>
-      <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-6 md:py-8">
+      <main className={cn(TUFF.frame, TUFF.block)}><div className={cn(TUFF.narrow, "flex flex-col gap-6")}>
         <div className="flex flex-col items-center gap-2 py-4 text-center">
           <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", duration: 0.4, bounce: 0.3 }}
             className="flex size-12 items-center justify-center rounded-full bg-foreground text-background"><Check className="size-6" aria-hidden="true" /></motion.div>
@@ -419,7 +420,7 @@ function Confirmation({ id, phone, district, eta, total, paid, fee, pay }: Place
         {state.store.phone && <p className="text-center text-sm text-muted-foreground">Need help? Call <a href={`tel:${state.store.phone}`} className="text-foreground underline underline-offset-4">{state.store.phone}</a></p>}
         <ActionButton variant="primary" size="md" className="h-12 text-base" onClick={() => go("store-tuffui")}>Continue shopping</ActionButton>
         <a href={`#order-tuffui-${id}`} className="text-center text-xs text-muted-foreground underline underline-offset-4">See this order in the admin (prototype)</a>
-      </main>
+      </div></main>
     </StoreFrameTuffui>
   )
 }

@@ -1,3 +1,4 @@
+import { TUFF } from "@/components/app/page-tuffui"
 import { useId, useRef, useState } from "react"
 import { toast } from "sonner"
 import { AnimatePresence, motion, MotionConfig } from "motion/react"
@@ -60,7 +61,7 @@ function AuthLayout({ title, description, children, footer }: { title: string; d
           <div className="flex size-8 items-center justify-center rounded-xl bg-foreground text-base font-semibold text-background" aria-hidden="true">G</div>
           <span className="text-base font-semibold">Ghuri Commerce</span>
         </div>
-        <motion.main className="w-full max-w-sm" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={enter}>
+        <motion.main className={TUFF.auth} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={enter}>
           <Shell>
             <div className="flex flex-col gap-1 px-3.5 pt-3 pb-4">
               <h1 className="text-xl font-semibold tracking-tight">{title}</h1>

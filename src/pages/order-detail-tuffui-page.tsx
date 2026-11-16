@@ -8,7 +8,7 @@ import { Button as ActionButton, IconButton } from "@/components/ui/action-butto
 import { EmptyState } from "@/components/ui/empty-state"
 import { Inset, Panel, Shell, ShellHeader } from "@/components/ui/surface"
 import { TextArea } from "@/components/ui/text-field"
-import { Page, PageColumn, PageGrid } from "@/components/app/page"
+import { PageTuffui as Page, PageColumnTuffui as PageColumn, PageGridTuffui as PageGrid } from "@/components/app/page-tuffui"
 import { DescriptionList } from "@/components/app/description-list"
 import { Money } from "@/components/app/money"
 import {

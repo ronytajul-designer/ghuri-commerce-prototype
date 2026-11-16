@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { ArrowSquareOut, DesktopTower, DeviceMobile, Image as ImageIcon, Lightbulb, LockSimple, Megaphone, Palette, SquaresFour } from "@phosphor-icons/react"
-import { Page, PageHeader } from "@/components/app/page"
+import { PageTuffui as Page, PageGridTuffui as PageGrid, PageHeaderTuffui as PageHeader } from "@/components/app/page-tuffui"
 import { useUnsavedGuard } from "@/components/app/unsaved-guard"
 import { Button as ActionButton } from "@/components/ui/action-button"
 import { Switch } from "@/components/ui/choice-controls"
@@ -105,7 +105,7 @@ export function ThemeTuffuiPage() {
         }
       />
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <PageGrid asideFirst>
         <div className="flex min-w-0 flex-col gap-6">
           <Shell>
             <ShellHeader className={WRAP} icon={outline(Palette)} title="Minimal" subtitle="More themes coming soon."
@@ -176,7 +176,7 @@ export function ThemeTuffuiPage() {
             </ul>
           </Panel>
         </Shell>
-      </div>
+      </PageGrid>
 
       <div className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-2 bg-surface/90 px-4 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-12px_rgb(0_0_0/0.25)] backdrop-blur md:hidden">
         <span className="flex-1 text-sm text-muted-foreground">{dirty ? "Not published yet" : "No changes"}</span>
