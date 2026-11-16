@@ -11,7 +11,7 @@ import { orderStatusLabel } from "@/components/app/status-badge"
 import { StatGrid, type Stat } from "@/components/ui/stat-grid"
 import { StatusPill, type StatusTone } from "@/components/ui/status-pill"
 import { DataTable, type DataColumn } from "@/components/ui/data-table"
-import { Segmented } from "@/components/ui/segmented-control"
+import { Select as TuffSelect } from "@/components/ui/select-field"
 import { Button as ActionButton } from "@/components/ui/action-button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ProgressBar } from "@/components/ui/progress-bar"
@@ -23,7 +23,7 @@ import type { Order, Product } from "@/store/types"
 import type { OrderStatus } from "@/data/orders"
 import { COURIER_CASH, pctChange } from "@/data/home"
 
-type Range = "7" | "30"
+type Range = "7" | "30" | "90"
 
 const DAY = 86_400_000
 const WEEKDAYS = ["Sundays", "Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays"]
@@ -199,8 +199,10 @@ function ActiveHome() {
           : "Nothing waiting. Here’s how the store is doing."}
         actions={
           <>
-            <Segmented<Range> label="Date range" value={range} onValueChange={setRange} size="md"
-              options={[{ value: "7", label: "Last 7 days" }, { value: "30", label: "Last 30 days" }]} />
+            <div className="w-40">
+              <TuffSelect label={<span className="sr-only">Date range</span>} value={range} onValueChange={(v) => setRange(v as Range)}
+                options={[{ value: "7", label: "Last 7 days" }, { value: "30", label: "Last 30 days" }, { value: "90", label: "Last 90 days" }]} />
+            </div>
             <ShareStoreButton />
           </>
         }
