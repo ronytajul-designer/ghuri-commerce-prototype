@@ -91,7 +91,7 @@ function ChoiceCards<T extends string>({ label, value, onValueChange, choices, c
 function SaveRow({ dirty, onSave, onReset }: { dirty: boolean; onSave: () => void; onReset: () => void }) {
   useUnsavedGuard(dirty)
   return (
-    <div className="sticky bottom-20 z-10 flex items-center justify-end gap-2 rounded-full bg-surface/90 p-1.5 pl-4 backdrop-blur md:bottom-4">
+    <div className={cn("z-10 flex items-center justify-end gap-2 rounded-full bg-surface p-1.5 pl-4", dirty && "sticky bottom-4 shadow-[0_8px_24px_-12px_rgb(0_0_0/0.3)]")}>
       <span className="mr-auto text-sm text-muted-foreground" aria-live="polite">{dirty ? "Unsaved changes" : "All changes saved"}</span>
       <Button variant="secondary" disabled={!dirty} onClick={onReset}>Discard</Button>
       <Button variant="primary" disabled={!dirty} onClick={onSave}>Save</Button>

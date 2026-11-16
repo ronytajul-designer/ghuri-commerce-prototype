@@ -24,6 +24,9 @@ import {
 } from "@/pages/settings-tuffui-pages"
 import { CartPage, StoreHomePage, StoreProductPage } from "@/pages/storefront-pages"
 import { LoginPage, SignupPage } from "@/pages/auth-pages"
+import { LoginTuffuiPage, SignupTuffuiPage } from "@/pages/auth-tuffui-pages"
+import { CartTuffuiPage, StoreHomeTuffuiPage, StoreProductTuffuiPage } from "@/pages/storefront-tuffui-pages"
+import { CheckoutTuffuiPage } from "@/pages/checkout-tuffui-page"
 import { TuffuiPreviewPage } from "@/pages/tuffui-preview-page"
 import { HomeTuffuiPage } from "@/pages/home-tuffui-page"
 import { ProductsTuffuiPage } from "@/pages/products-tuffui-page"
@@ -71,7 +74,13 @@ function Shell() {
   const m = (re: RegExp) => route.match(re)?.[1]
 
   let content: React.ReactNode
-  if (route === "login") content = <LoginPage />
+  if (route === "login-tuffui") content = <LoginTuffuiPage />
+  else if (route === "signup-tuffui") content = <SignupTuffuiPage />
+  else if (route === "store-tuffui") content = <StoreHomeTuffuiPage />
+  else if (m(/^store-tuffui-p-(.+)$/)) content = <StoreProductTuffuiPage key={route} id={m(/^store-tuffui-p-(.+)$/)!} />
+  else if (route === "cart-tuffui") content = <CartTuffuiPage />
+  else if (route === "checkout-tuffui") content = <CheckoutTuffuiPage />
+  else if (route === "login") content = <LoginPage />
   else if (route === "signup") content = <SignupPage />
   else if (route === "store") content = <StoreHomePage />
   else if (m(/^store-p-(.+)$/)) content = <StoreProductPage key={route} id={m(/^store-p-(.+)$/)!} />
