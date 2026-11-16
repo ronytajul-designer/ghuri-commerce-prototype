@@ -5,7 +5,10 @@ import {
 } from "@phosphor-icons/react"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Page, PageColumn, PageGrid, PageHeader } from "@/components/app/page"
-import { ShareStoreButton } from "@/components/app/share-store-button"
+import { ShareStoreButtonTuffui as ShareStoreButton } from "@/components/app/share-store-button-tuffui"
+import { outline } from "@/lib/phosphor"
+import { motion } from "motion/react"
+import { EASE_OUT } from "@/lib/motion-tokens"
 import { Money } from "@/components/app/money"
 import { orderStatusLabel } from "@/components/app/status-badge"
 import { StatGrid, type Stat } from "@/components/ui/stat-grid"
@@ -92,11 +95,14 @@ const READABLE: Record<StatusTone, string> = {
   neutral: "",
 }
 /** Same fix for the delta pills StatGrid renders internally (it does not take a pill className). */
-const STAT_FIX = "[&_.text-positive]:text-success-foreground [&_.text-negative]:text-[oklch(0.45_0.2_27)] dark:[&_.text-negative]:text-destructive"
+const STAT_FIX = "[&_.truncate]:whitespace-normal [&_.truncate]:overflow-visible [&_.text-positive]:text-success-foreground [&_.text-negative]:text-[oklch(0.45_0.2_27)] dark:[&_.text-negative]:text-destructive"
 
 function Pill({ tone, children }: { tone: StatusTone; children: React.ReactNode }) {
   return <StatusPill tone={tone} className={READABLE[tone]}>{children}</StatusPill>
 }
+
+/** ShellHeader truncates subtitles; let them wrap instead. */
+const WRAP = "[&_p]:whitespace-normal [&_p]:overflow-visible [&_p]:text-clip"
 
 function go(href: string) { window.location.hash = href.replace(/^#/, "") }
 
@@ -187,7 +193,7 @@ function ActiveHome() {
       ),
     },
     { key: "status", label: "Status", priority: 2, format: (_v, r) => <Pill tone={TONE[r.status]}>{orderStatusLabel(r.status)}</Pill> },
-    { key: "total", label: "Total", align: "right", priority: 1, format: (v) => <span className="tabular-nums">{taka(Number(v))}</span> },
+    { key: "total", label: "Total", align: "right", priority: 1, format: (v) => <Money value={Number(v)} className="font-sans text-sm" /> },
   ]
 
   return (
@@ -220,7 +226,7 @@ function ActiveHome() {
             </div>
             {nextStep.key === "share"
               ? <ShareStoreButton size="sm" />
-              : <ActionButton variant="secondary" size="sm" onClick={() => go(nextStep.href)}>{nextStep.action}<ArrowRight weight="bold" className="size-3.5" aria-hidden="true" /></ActionButton>}
+              : <ActionButton variant="secondary" size="sm" onClick={() => go(nextStep.href)}>{nextStep.action}<ArrowRight className="size-4" aria-hidden="true" /></ActionButton>}
           </Panel>
         </Shell>
       )}
@@ -229,17 +235,19 @@ function ActiveHome() {
         <h2 id="todo" className="text-base font-semibold">Needs your attention</h2>
         <Shell>
           <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-4">
-            {tasks.map((t) => (
-              <a key={t.key} href={t.href} className="group rounded-2xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+            {tasks.map((t, i) => (
+              <motion.a key={t.key} href={t.href} className="group rounded-2xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: EASE_OUT, delay: i * 0.04 } }}
+                whileHover={{ y: -2, transition: { duration: 0.15, ease: EASE_OUT } }} whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}>
                 <Panel className={cn("flex h-full flex-col gap-2 p-4 transition-colors group-hover:bg-foreground/[0.04]", t.urgent && "ring-2 ring-warning/60 ring-inset")}>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="flex min-w-0 items-center gap-2 text-[0.8125rem] text-muted-foreground"><t.icon weight="fill" className="size-4 shrink-0" aria-hidden="true" /><span className="truncate">{t.label}</span></span>
+                    <span className="flex min-w-0 items-center gap-2 text-[0.8125rem] text-muted-foreground"><t.icon className="size-4 shrink-0" aria-hidden="true" /><span className="truncate">{t.label}</span></span>
                     <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" aria-hidden="true" />
                   </div>
                   <RollingNumber value={t.count} className="text-[1.625rem] leading-none font-medium tracking-tight" />
                   <span className="text-xs text-muted-foreground">{t.hint}</span>
                 </Panel>
-              </a>
+              </motion.a>
             ))}
           </div>
         </Shell>
@@ -253,14 +261,14 @@ function ActiveHome() {
       <PageGrid>
         <PageColumn>
           <Shell>
-            <ShellHeader icon={ChartBar} title="Orders per day"
+            <ShellHeader className={WRAP} icon={outline(ChartBar)} title="Orders per day"
               subtitle={`${cur.count} ${cur.count === 1 ? "order" : "orders"} in the last ${range} days.${data.busiest ? ` ${data.busiest} are busiest.` : ""}`} />
             <Panel className="p-4">
               <ChartContainer config={chartConfig} className="aspect-auto h-56 w-full">
                 <BarChart data={data.days} margin={{ left: 0, right: 0, top: 8 }} accessibilityLayer>
                   <CartesianGrid vertical={false} />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />
-                  <YAxis tickLine={false} axisLine={false} width={24} allowDecimals={false} />
+                  <XAxis dataKey="label" tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />
+                  <YAxis tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} width={24} allowDecimals={false} />
                   <ChartTooltip cursor={{ fill: "var(--muted)" }} content={<ChartTooltipContent />} />
                   <Bar dataKey="orders" fill="var(--color-orders)" radius={[4, 4, 0, 0]} maxBarSize={24} />
                 </BarChart>
@@ -269,21 +277,21 @@ function ActiveHome() {
           </Shell>
 
           <div className="flex flex-col gap-2">
-            <DataTable data={rows} columns={columns} title="Recent orders" pageSize={5} onRowClick={(r) => go(`order-${r.id}`)} className="max-w-none" />
-            <div className="flex justify-end"><ActionButton variant="quiet" size="sm" onClick={() => go("orders")}>All orders<ArrowRight weight="bold" className="size-3.5" aria-hidden="true" /></ActionButton></div>
+            <DataTable data={rows} columns={columns} title="Recent orders" pageSize={5} searchable={false} onRowClick={(r) => go(`order-${r.id}`)} className="max-w-none" />
+            <div className="flex justify-end"><ActionButton variant="quiet" size="sm" onClick={() => go("orders")}>All orders<ArrowRight className="size-4" aria-hidden="true" /></ActionButton></div>
           </div>
         </PageColumn>
 
         <PageColumn>
           <Shell>
-            <ShellHeader icon={Coins} title="Cash with couriers" aside={<StatusPill tone="neutral">Sample data</StatusPill>} />
+            <ShellHeader className={WRAP} icon={outline(Coins)} title="Cash with couriers" aside={<StatusPill tone="neutral">Sample data</StatusPill>} />
             <Panel className="flex flex-col gap-4 p-4">
               <p className="text-sm text-muted-foreground"><Money value={cashTotal} className="font-medium text-foreground" /> from {cashParcels} parcels, not paid to you yet.</p>
               <ul className="flex flex-col gap-2">
                 {COURIER_CASH.map((c) => (
                   <li key={c.courier}>
                     <Inset className="flex items-start justify-between gap-4 px-4 py-2 text-sm">
-                      <div className="flex flex-col"><span className="font-medium">{c.courier}</span><span className="text-muted-foreground">{c.parcels} parcels · pays {c.settles}</span></div>
+                      <div className="flex flex-col"><span className="font-medium">{c.courier}</span><span className="text-muted-foreground">{c.parcels} parcels · <span className="whitespace-nowrap">pays {c.settles}</span></span></div>
                       <Money value={c.amount} className="font-medium" />
                     </Inset>
                   </li>
@@ -293,7 +301,7 @@ function ActiveHome() {
           </Shell>
 
           <Shell>
-            <ShellHeader icon={Warning} title="Low stock" subtitle={lowStock.length ? "Restock before your next Facebook post." : undefined} />
+            <ShellHeader className={WRAP} icon={outline(Warning)} title="Low stock" subtitle={lowStock.length ? "Restock before your next Facebook post." : undefined} />
             <Panel className="p-4">
               {lowStock.length > 0 ? (
                 <ul className="flex flex-col gap-4">
@@ -306,12 +314,12 @@ function ActiveHome() {
                     </li>
                   ))}
                 </ul>
-              ) : <EmptyState compact icon={CheckCircle} title="Stock looks good" description="Every active product has enough stock." />}
+              ) : <EmptyState compact icon={outline(CheckCircle)} title="Stock looks good" description="Every active product has enough stock." />}
             </Panel>
           </Shell>
 
           <Shell>
-            <ShellHeader icon={Trophy} title="Best sellers" subtitle="All time, by units sold." />
+            <ShellHeader className={WRAP} icon={outline(Trophy)} title="Best sellers" subtitle="All time, by units sold." />
             <Panel className="p-4">
               {bestSellers.length ? (
                 <ol className="flex flex-col gap-4">
@@ -323,7 +331,7 @@ function ActiveHome() {
                     </li>
                   ))}
                 </ol>
-              ) : <EmptyState compact icon={Bag} title="No sales yet" />}
+              ) : <EmptyState compact icon={outline(Bag)} title="No sales yet" />}
             </Panel>
           </Shell>
         </PageColumn>
@@ -348,7 +356,7 @@ function NewStoreHome() {
         <PageColumn>
           {!complete && (
             <Shell>
-              <ShellHeader icon={ListBullets} title="Get ready to sell" subtitle={`${done} of ${steps.length} done`}
+              <ShellHeader className={WRAP} icon={outline(ListBullets)} title="Get ready to sell" subtitle={`${done} of ${steps.length} done`}
                 aside={<StatusPill tone="neutral">{Math.round((done / steps.length) * 100)}%</StatusPill>} />
               <Panel className="flex flex-col gap-4 p-4">
                 <ProgressBar value={done} max={steps.length} label="Store setup" valueText={`Setup ${done} of ${steps.length} done`} />
@@ -358,13 +366,13 @@ function NewStoreHome() {
                     return (
                       <li key={s.key}>
                         <Inset className={cn("flex flex-wrap items-start gap-4 p-4", isNext && "ring-2 ring-brand/40 ring-inset")}>
-                          {s.done ? <CheckCircle weight="fill" className="size-5 text-success" aria-hidden="true" /> : <Circle className="size-5 text-muted-foreground" aria-hidden="true" />}
+                          {s.done ? <CheckCircle className="size-4 text-success-foreground dark:text-success" aria-hidden="true" /> : <Circle className="size-4 text-muted-foreground" aria-hidden="true" />}
                           <div className="flex min-w-0 flex-1 flex-col gap-1">
                             <span className={cn("text-sm font-medium", s.done && "text-muted-foreground line-through")}>{s.title}<span className="sr-only">{s.done ? ", done" : ""}</span></span>
                             {!s.done && <span className="text-sm text-muted-foreground">{s.description}</span>}
                           </div>
                           {!s.done && (s.key === "share"
-                            ? <ShareStoreButton size="sm" variant={isNext ? "default" : "outline"} />
+                            ? <ShareStoreButton size="sm" variant={isNext ? "primary" : "secondary"} />
                             : <ActionButton size="sm" variant={isNext ? "primary" : "secondary"} onClick={() => go(s.href)}>{s.action}</ActionButton>)}
                         </Inset>
                       </li>
@@ -375,24 +383,24 @@ function NewStoreHome() {
             </Shell>
           )}
           <Shell>
-            <ShellHeader icon={Bag} title="Orders" />
+            <ShellHeader className={WRAP} icon={outline(Bag)} title="Orders" />
             <Panel className="flex flex-col items-center gap-4 pb-6">
-              <EmptyState icon={Package} title="No orders yet"
+              <EmptyState icon={outline(Package)} title="No orders yet"
                 description="Your first order shows up here, and we send you an SMS. Share your store link to get it faster." />
-              <ShareStoreButton variant="default" />
+              <ShareStoreButton variant="primary" />
             </Panel>
           </Shell>
         </PageColumn>
         <PageColumn>
           <Shell>
-            <ShellHeader icon={Sparkle} title="Set up with AI" subtitle="Let Claude or ChatGPT create listings from photos." />
+            <ShellHeader className={WRAP} icon={outline(Sparkle)} title="Set up with AI" subtitle="Let Claude or ChatGPT create listings from photos." />
             <Panel className="flex flex-col gap-4 p-4">
               <p className="text-sm text-muted-foreground">Send product photos to Claude or ChatGPT and let it create the listings for you.</p>
               <div><ActionButton variant="secondary" size="sm" onClick={() => go("settings-ai")}>Connect an AI app</ActionButton></div>
             </Panel>
           </Shell>
           <Shell>
-            <ShellHeader icon={Storefront} title="Your store link" subtitle="Customers order from here." />
+            <ShellHeader className={WRAP} icon={outline(Storefront)} title="Your store link" subtitle="Customers order from here." />
             <Panel className="flex flex-col gap-4 p-4">
               <Inset className="px-4 py-2 text-sm break-all">{state.store.handle}.ghuri.store</Inset>
               <div><ActionButton variant="secondary" size="sm" onClick={() => go("store")}>Preview store</ActionButton></div>

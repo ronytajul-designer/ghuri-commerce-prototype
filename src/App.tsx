@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ThemeProvider, useAppTheme } from "@/components/mode-toggle"
 import { AppShell, type NavKey } from "@/components/app/app-shell"
+import { AppShellTuffui } from "@/components/app/app-shell-tuffui"
 import { AppProvider, useApp } from "@/store/store"
 import { interceptHashChange, UnsavedGuardDialog } from "@/components/app/unsaved-guard"
 import { STAGES, type OrderStatus } from "@/data/orders"
@@ -76,7 +77,7 @@ function Shell() {
   else if (m(/^collection-(.+)$/)) content = admin("collections", <CollectionFormPage key={route} id={m(/^collection-(.+)$/)} />)
   else if (route === "customers") content = admin("customers", <CustomersPage />)
   else if (m(/^customer-(.+)$/)) content = admin("customers", <CustomerDetailPage key={route} phone={m(/^customer-(.+)$/)!} />)
-  else if (route === "home-tuffui") content = admin("home", <HomeTuffuiPage />)
+  else if (route === "home-tuffui") content = <AppShellTuffui active="home" badges={{ orders: toConfirm }}><HomeTuffuiPage /></AppShellTuffui>
   else if (route === "tuffui") content = admin("home", <TuffuiPreviewPage />)
   else if (route === "theme") content = admin("theme", <ThemePage />)
   else if (route === "settings" || route === "settings-general") content = admin("settings", <GeneralSettingsPage />)
