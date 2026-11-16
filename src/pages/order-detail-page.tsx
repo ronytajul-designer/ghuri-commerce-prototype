@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { toast } from "sonner"
 import { CopyIcon, MessageCircleIcon, PhoneIcon, PrinterIcon, TriangleAlertIcon, TruckIcon } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -17,12 +17,20 @@ import { OrderProgress } from "@/components/app/order-progress"
 import { OrderStatusBadge, PaymentBadge } from "@/components/app/status-badge"
 import { BookCourierDialog, CancelOrderDialog } from "@/components/app/order-dialogs"
 import { codDue, isValidBdPhone, riskOf, subtotal, total } from "@/data/orders"
-import { timeAgo, useOrderActions, useOrders } from "@/store/store"
+import { timeAgo, useApp, useOrderActions, useOrders } from "@/store/store"
 
 export function OrderDetailPage({ id }: { id: number }) {
   const o = useOrders().find((x) => x.id === id)
   const actions = useOrderActions()
-  const [dialog, setDialog] = useState<null | "cancel" | "book">(null)
+  const [dialog, setDialogState] = useState<null | "cancel" | "book">(null)
+  const { state } = useApp()
+  // Dialogs are opened from state, so remember the trigger and return focus to it on close.
+  const returnFocus = useRef<HTMLElement | null>(null)
+  const setDialog = (d: null | "cancel" | "book") => {
+    if (d) returnFocus.current = document.activeElement as HTMLElement | null
+    else requestAnimationFrame(() => { const el = returnFocus.current; if (el?.isConnected) el.focus() })
+    setDialogState(d)
+  }
   const [note, setNote] = useState("")
 
   if (!o) {
@@ -81,7 +89,7 @@ export function OrderDetailPage({ id }: { id: number }) {
               {o.status === "confirm" && (
                 <div className="flex flex-wrap gap-2">
                   <Button asChild><a href={`tel:${o.phone}`}><PhoneIcon />Call {o.phone}</a></Button>
-                  <Button variant="outline" asChild><a href="#" aria-label={`Message ${first} on WhatsApp`}><MessageCircleIcon />WhatsApp</a></Button>
+                  <Button variant="outline" asChild><a href={`https://wa.me/88${o.phone}`} target="_blank" rel="noopener noreferrer" aria-label={`Message ${first} on WhatsApp (opens in a new tab)`}><MessageCircleIcon />WhatsApp</a></Button>
                   <Button variant="outline" size="icon" aria-label="Copy phone number" onClick={() => { navigator.clipboard?.writeText(o.phone).catch(() => {}); toast("Phone number copied") }}><CopyIcon /></Button>
                 </div>
               )}
@@ -155,8 +163,17 @@ export function OrderDetailPage({ id }: { id: number }) {
 
         <PageColumn>
           <Card>
-            <CardHeader><CardTitle>Customer</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Customer</CardTitle>
+              <CardAction><Button variant="ghost" size="sm" asChild><a href={`#customer-${o.phone}`}>View customer</a></Button></CardAction>
+            </CardHeader>
             <CardContent className="gap-6">
+              {state.customerNotes[o.phone]?.trim() && (
+                <Alert>
+                  <AlertTitle>Your note</AlertTitle>
+                  <AlertDescription className="whitespace-pre-line">{state.customerNotes[o.phone]}</AlertDescription>
+                </Alert>
+              )}
               <DescriptionList items={[
                 { term: "Name", detail: o.name },
                 { term: "Phone", detail: isValidBdPhone(o.phone) ? <span className="tabular-nums">{o.phone}</span> : <Badge variant="destructive">Invalid: “{o.phone}”</Badge> },
