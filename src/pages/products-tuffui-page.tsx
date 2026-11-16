@@ -6,7 +6,7 @@ import { Money } from "@/components/app/money"
 import { Button as ActionButton } from "@/components/ui/action-button"
 import { DataTable, type DataColumn } from "@/components/ui/data-table"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Segmented } from "@/components/ui/segmented-control"
+import { SegmentedTabsTuffui } from "@/components/app/tabs-tuffui"
 import { StatusPill, type StatusTone } from "@/components/ui/status-pill"
 import { Panel, Shell } from "@/components/ui/surface"
 import { SearchField } from "@/components/ui/text-field"
@@ -118,12 +118,10 @@ export function ProductsTuffuiPage() {
       <PageHeader title="Products" description="Everything you sell." actions={add} />
       <motion.div className="flex flex-col gap-4" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: EASE_OUT } }}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
-            <Segmented<Filter> label="Filter products by status" value={filter} onValueChange={setFilter} className="w-max"
-              options={(["all", "active", "draft", "archived"] as Filter[]).map((f) => ({
-                value: f, label: <span className="flex items-center gap-2 capitalize">{f}<span className="text-xs text-muted-foreground tabular-nums">{counts[f]}</span></span>,
-              }))} />
-          </div>
+          <SegmentedTabsTuffui<Filter> label="Filter products by status" value={filter} onValueChange={setFilter}
+            options={(["all", "active", "draft", "archived"] as Filter[]).map((f) => ({
+              value: f, label: <span className="capitalize">{f}</span>, count: counts[f],
+            }))} />
           <SearchField className="w-full sm:max-w-80 [&_input]:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--foreground)_55%,transparent)]" aria-label="Search products" placeholder="Search products" value={q} onChange={(e) => setQ(e.target.value)} onClear={() => setQ("")} />
         </div>
         {rows.length === 0 ? (

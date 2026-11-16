@@ -3,7 +3,7 @@ import { Truck } from "@phosphor-icons/react"
 import { Button as ActionButton } from "@/components/ui/action-button"
 import { Dialog } from "@/components/ui/modal-sheet"
 import { Radio, RadioGroup } from "@/components/ui/choice-controls"
-import { Segmented } from "@/components/ui/segmented-control"
+import { SegmentedTabsTuffui } from "@/components/app/tabs-tuffui"
 import { StatusPill, type StatusTone } from "@/components/ui/status-pill"
 import { TextField } from "@/components/ui/text-field"
 import { Money } from "@/components/app/money"
@@ -110,7 +110,7 @@ export function BookCourierModal({ open, orders, onOpenChange, onSubmit }: {
       <form className="flex flex-col gap-4 px-2.5 pb-2" onSubmit={(e) => { e.preventDefault(); submit() }} noValidate>
         <div className="flex flex-col gap-1.5">
           <span aria-hidden="true" className="px-1 text-[0.8125rem] font-medium">Courier</span>
-          <Segmented label="Courier" size="md" className="w-full [&>button]:flex-1" value={courier} onValueChange={setCourier}
+          <SegmentedTabsTuffui label="Courier" fill value={courier} onValueChange={setCourier}
             options={COURIERS.map((c) => ({ value: c, label: c }))} />
         </div>
         <TextField name="weight" label="Weight (kg)" inputMode="decimal" value={weight} error={error}

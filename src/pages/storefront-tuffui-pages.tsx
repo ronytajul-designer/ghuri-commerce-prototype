@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from "react"
+import { SegmentedTabsTuffui } from "@/components/app/tabs-tuffui"
 import { TUFF } from "@/components/app/page-tuffui"
 import { toast } from "sonner"
 import { motion, MotionConfig } from "motion/react"
@@ -176,7 +177,7 @@ function StoreHomeContentTuffui({ state, theme }: { state: AppState; theme: Them
       </section>
       <section id="products-grid" className={cn(TUFF.frame, "flex scroll-mt-16 flex-col gap-6 py-8")}>
         {theme.showCollections && collections.length > 0 && (
-          <ChipGroup label="Collections" value={col} onValueChange={setCol} options={[{ value: "all", label: "All" }, ...collections.map((c) => ({ value: c.id, label: c.title }))]} />
+          <SegmentedTabsTuffui label="Collections" value={col} onValueChange={setCol} options={[{ value: "all", label: "All" }, ...collections.map((c) => ({ value: c.id, label: c.title }))]} />
         )}
         {shown.length === 0 ? (
           <Shell><Panel><EmptyState icon={ShoppingBag} title="No products yet" description="New products are coming soon." /></Panel></Shell>

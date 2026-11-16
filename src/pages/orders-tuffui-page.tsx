@@ -5,7 +5,7 @@ import { MagnifyingGlass, Printer, Truck } from "@phosphor-icons/react"
 import { Button as ActionButton } from "@/components/ui/action-button"
 import { DataTable, type DataColumn } from "@/components/ui/data-table"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Segmented } from "@/components/ui/segmented-control"
+import { SegmentedTabsTuffui } from "@/components/app/tabs-tuffui"
 import { SearchField } from "@/components/ui/text-field"
 import { Shell, Panel } from "@/components/ui/surface"
 import { PageTuffui as Page, PageHeaderTuffui as PageHeader } from "@/components/app/page-tuffui"
@@ -86,14 +86,12 @@ export function OrdersTuffuiPage({ initialStage = "confirm" }: { initialStage?: 
       />
 
       <div className="flex flex-col gap-4">
-        <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:px-0">
-          <Segmented label="Order stage" size="md" className="w-max" value={stage}
+        <SegmentedTabsTuffui label="Order stage" value={stage}
             onValueChange={(v) => { setStage(v); setChecked([]); history.replaceState(null, "", `#orders-tuffui-${v}`) }}
             options={STAGES.map((s) => ({
               value: s,
-              label: <span className="flex items-center gap-2">{orderStatusLabel(s)}<span className="text-xs text-muted-foreground tabular-nums">{counts[s]}</span></span>,
+              label: orderStatusLabel(s), count: counts[s],
             }))} />
-        </div>
 
         <SearchField className="w-full sm:max-w-80" label={<span className="sr-only">Search orders</span>} placeholder="Search name, phone or order #"
           value={query} onChange={(e) => setQuery(e.target.value)} onClear={() => setQuery("")} />

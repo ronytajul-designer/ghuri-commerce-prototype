@@ -6,7 +6,7 @@ import { Button as ActionButton } from "@/components/ui/action-button"
 import { RadioGroup, Radio } from "@/components/ui/choice-controls"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Sheet } from "@/components/ui/modal-sheet"
-import { Segmented } from "@/components/ui/segmented-control"
+import { SegmentedTabsTuffui } from "@/components/app/tabs-tuffui"
 import { Select } from "@/components/ui/select-field"
 import { Inset, Panel, Shell, ShellHeader } from "@/components/ui/surface"
 import { TextArea, TextField } from "@/components/ui/text-field"
@@ -336,7 +336,7 @@ function CheckoutForm({ state, lines, onPlace, onPlaced }: {
                         {advanceMode && wallets.length > 1 && (
                           <div className="flex flex-col gap-2">
                             <span className="px-1 text-[0.8125rem] font-medium" aria-hidden="true">Pay the delivery charge with</span>
-                            <Segmented<Wallet> label="Pay the delivery charge with" size="md" value={advWallet} onValueChange={setAdvWallet}
+                            <SegmentedTabsTuffui<Wallet> label="Pay the delivery charge with" value={advWallet} onValueChange={setAdvWallet}
                               options={wallets.map((w) => ({ value: w, label: WALLET_NAME[w] }))} className="self-start" />
                           </div>
                         )}

@@ -9,7 +9,7 @@ import { OrderStatusPill, Pill } from "@/components/app/order-bits-tuffui"
 import { Button as ActionButton, IconButton } from "@/components/ui/action-button"
 import { DataTable, type DataColumn } from "@/components/ui/data-table"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Segmented } from "@/components/ui/segmented-control"
+import { SegmentedTabsTuffui } from "@/components/app/tabs-tuffui"
 import { Panel, Shell, ShellHeader } from "@/components/ui/surface"
 import { SearchField, TextArea } from "@/components/ui/text-field"
 import { EASE_OUT } from "@/lib/motion-tokens"
@@ -75,12 +75,8 @@ export function CustomersTuffuiPage() {
       ) : (
         <motion.div className="flex flex-col gap-4" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { duration: 0.24, ease: EASE_OUT } }}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
-              <Segmented<Segment> label="Filter customers" value={segment} onValueChange={setSegment} className="w-max"
-                options={(["all", "repeat", "risky"] as Segment[]).map((s) => ({
-                  value: s, label: <span className="flex items-center gap-2">{LABEL[s]}<span className="text-xs text-muted-foreground tabular-nums">{counts[s]}</span></span>,
-                }))} />
-            </div>
+            <SegmentedTabsTuffui<Segment> label="Filter customers" value={segment} onValueChange={setSegment}
+              options={(["all", "repeat", "risky"] as Segment[]).map((s) => ({ value: s, label: LABEL[s], count: counts[s] }))} />
             <SearchField className="w-full sm:max-w-80 [&_input]:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--foreground)_55%,transparent)]" aria-label="Search customers" placeholder="Search name or phone" value={q} onChange={(e) => setQ(e.target.value)} onClear={() => setQ("")} />
           </div>
           {rows.length === 0 ? (

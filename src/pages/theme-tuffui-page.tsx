@@ -5,7 +5,7 @@ import { PageTuffui as Page, PageGridTuffui as PageGrid, PageHeaderTuffui as Pag
 import { useUnsavedGuard } from "@/components/app/unsaved-guard"
 import { Button as ActionButton } from "@/components/ui/action-button"
 import { Switch } from "@/components/ui/choice-controls"
-import { Segmented } from "@/components/ui/segmented-control"
+import { SegmentedTabsTuffui } from "@/components/app/tabs-tuffui"
 import { Panel, Shell, ShellHeader } from "@/components/ui/surface"
 import { TextArea, TextField } from "@/components/ui/text-field"
 import { outline } from "@/lib/phosphor"
@@ -138,7 +138,7 @@ export function ThemeTuffuiPage() {
         <div className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-20 xl:row-span-2">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-sm font-medium">Preview{dirty && <span className="hidden font-normal text-muted-foreground sm:inline"> · not published yet</span>}</h2>
-            <Segmented<"phone" | "desktop">
+            <SegmentedTabsTuffui<"phone" | "desktop">
               label="Preview size"
               value={device}
               onValueChange={setDevice}
